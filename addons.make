@@ -1,0 +1,5 @@
+ofxAutoReloadedShader
+ofxFX
+ofxGui
+ofxVectorField
+ofxVoronoi

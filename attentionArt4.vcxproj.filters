@@ -1,0 +1,336 @@
+<?xml version="1.0"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ItemGroup>
+		<ClCompile Include="src\ofApp.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="src\main.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="src\main.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="src\ofApp.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="src\Particle.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxAutoReloadedShader\src\ofxAutoReloadedShader.cpp">
+			<Filter>addons\ofxAutoReloadedShader\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxFX\src\ofxFXObject.cpp">
+			<Filter>addons\ofxFX\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxGui\src\ofxBaseGui.cpp">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxGui\src\ofxButton.cpp">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxGui\src\ofxGuiGroup.cpp">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxGui\src\ofxLabel.cpp">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxGui\src\ofxPanel.cpp">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxGui\src\ofxSlider.cpp">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.cpp">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxGui\src\ofxToggle.cpp">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxVectorField\src\ofxVectorField.cpp">
+			<Filter>addons\ofxVectorField\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxVoronoi\src\ofxVoronoi.cpp">
+			<Filter>addons\ofxVoronoi\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\cell_2d.cpp">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\cell_nc_2d.cpp">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\common.cpp">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\container_2d.cpp">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\ctr_boundary_2d.cpp">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\c_loops_2d.cpp">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\v_base_2d.cpp">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\v_base_wl_2d.cpp">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\v_compute_2d.cpp">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\wall_2d.cpp">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClCompile>
+	</ItemGroup>
+	<ItemGroup>
+		<Filter Include="src">
+			<UniqueIdentifier>{d8376475-7454-4a24-b08a-aac121d3ad6f}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons">
+			<UniqueIdentifier>{71834F65-F3A9-211E-73B8-DC85}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxAutoReloadedShader">
+			<UniqueIdentifier>{521D26BE-55F6-47AB-3222-444B}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxAutoReloadedShader\src">
+			<UniqueIdentifier>{0051F69E-E543-1BA2-D150-22F5}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxFX">
+			<UniqueIdentifier>{54067F17-D691-C8D5-A60C-8B15}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxFX\src">
+			<UniqueIdentifier>{97D4701D-86BD-D02B-CE02-0C34}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxFX\src\composers">
+			<UniqueIdentifier>{4C3B9E56-1307-1B87-A0CC-CAA5}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxFX\src\filters">
+			<UniqueIdentifier>{EEFEFA5B-9FF5-F358-2F4A-BC5A}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxFX\src\generative">
+			<UniqueIdentifier>{47CDF68F-3CB9-C2A3-96DC-EE22}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxFX\src\operations">
+			<UniqueIdentifier>{98E7BD88-03E0-D5B4-C028-9281}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxGui">
+			<UniqueIdentifier>{4F2A59AF-5F4E-704B-D067-EC13}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxGui\src">
+			<UniqueIdentifier>{645E9533-4DCD-6179-1CDF-CB65}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxVectorField">
+			<UniqueIdentifier>{A4865ECD-CC03-E38E-FBAF-3628}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxVectorField\src">
+			<UniqueIdentifier>{36F2DE88-9F6F-2C9C-F5B7-B1CF}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxVoronoi">
+			<UniqueIdentifier>{5EED1C10-67BF-349B-E29E-9691}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxVoronoi\src">
+			<UniqueIdentifier>{85832432-B506-AB67-6FFA-D38B}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxVoronoi\libs">
+			<UniqueIdentifier>{03AC4FA8-BF83-EC4E-C0E8-B916}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxVoronoi\libs\Voro++2D">
+			<UniqueIdentifier>{56FB77C7-6297-BA5C-82FD-98AF}</UniqueIdentifier>
+		</Filter>
+	</ItemGroup>
+	<ItemGroup>
+		<ClInclude Include="src\ofApp.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="src\ofApp.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="src\Particle.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxAutoReloadedShader\src\ofxAutoReloadedShader.h">
+			<Filter>addons\ofxAutoReloadedShader\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\composers\ofxBlend.h">
+			<Filter>addons\ofxFX\src\composers</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\composers\ofxClone.h">
+			<Filter>addons\ofxFX\src\composers</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\composers\ofxMask.h">
+			<Filter>addons\ofxFX\src\composers</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\composers\ofxMultiTexture.h">
+			<Filter>addons\ofxFX\src\composers</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\filters\ofxBarrelChromaAb.h">
+			<Filter>addons\ofxFX\src\filters</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\filters\ofxBloom.h">
+			<Filter>addons\ofxFX\src\filters</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\filters\ofxBlur.h">
+			<Filter>addons\ofxFX\src\filters</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\filters\ofxBokeh.h">
+			<Filter>addons\ofxFX\src\filters</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\filters\ofxChromaAb.h">
+			<Filter>addons\ofxFX\src\filters</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\filters\ofxChromaGlitch.h">
+			<Filter>addons\ofxFX\src\filters</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\filters\ofxContrast.h">
+			<Filter>addons\ofxFX\src\filters</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\filters\ofxGaussianBlur.h">
+			<Filter>addons\ofxFX\src\filters</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\filters\ofxGlow.h">
+			<Filter>addons\ofxFX\src\filters</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\filters\ofxGrayscale.h">
+			<Filter>addons\ofxFX\src\filters</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\filters\ofxInverse.h">
+			<Filter>addons\ofxFX\src\filters</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\filters\ofxLUT.h">
+			<Filter>addons\ofxFX\src\filters</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\filters\ofxMedian.h">
+			<Filter>addons\ofxFX\src\filters</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\filters\ofxOldTv.h">
+			<Filter>addons\ofxFX\src\filters</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\generative\ofxFBM.h">
+			<Filter>addons\ofxFX\src\generative</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\generative\ofxFire.h">
+			<Filter>addons\ofxFX\src\generative</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\generative\ofxGrayScott.h">
+			<Filter>addons\ofxFX\src\generative</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\generative\ofxNoise.h">
+			<Filter>addons\ofxFX\src\generative</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\generative\ofxTint.h">
+			<Filter>addons\ofxFX\src\generative</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\ofxFX.h">
+			<Filter>addons\ofxFX\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\ofxFXObject.h">
+			<Filter>addons\ofxFX\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\ofxSwapBuffer.h">
+			<Filter>addons\ofxFX\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\operations\ofxAbsDiff.h">
+			<Filter>addons\ofxFX\src\operations</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\operations\ofxBounce.h">
+			<Filter>addons\ofxFX\src\operations</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\operations\ofxDisplacePixels.h">
+			<Filter>addons\ofxFX\src\operations</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\operations\ofxEdgeDetect.h">
+			<Filter>addons\ofxFX\src\operations</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\operations\ofxFlow.h">
+			<Filter>addons\ofxFX\src\operations</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\operations\ofxNormals.h">
+			<Filter>addons\ofxFX\src\operations</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\operations\ofxRipples.h">
+			<Filter>addons\ofxFX\src\operations</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\operations\ofxSubstract.h">
+			<Filter>addons\ofxFX\src\operations</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxFX\src\operations\ofxThreshold.h">
+			<Filter>addons\ofxFX\src\operations</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxGui\src\ofxBaseGui.h">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxGui\src\ofxButton.h">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxGui\src\ofxGui.h">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxGui\src\ofxGuiGroup.h">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxGui\src\ofxLabel.h">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxGui\src\ofxPanel.h">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxGui\src\ofxSlider.h">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.h">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxGui\src\ofxToggle.h">
+			<Filter>addons\ofxGui\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVectorField\src\ofxVectorField.h">
+			<Filter>addons\ofxVectorField\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVoronoi\src\ofxVoronoi.h">
+			<Filter>addons\ofxVoronoi\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\cell_2d.h">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\cell_nc_2d.h">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\common.h">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\config.h">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\container_2d.h">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\ctr_boundary_2d.h">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\c_loops_2d.h">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\rad_option.h">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\voro++_2d.h">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\v_base_2d.h">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\v_compute_2d.h">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\wall_2d.h">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxVoronoi\libs\Voro++2D\worklist_2d.h">
+			<Filter>addons\ofxVoronoi\libs\Voro++2D</Filter>
+		</ClInclude>
+	</ItemGroup>
+	<ItemGroup>
+		<ResourceCompile Include="icon.rc" />
+	</ItemGroup>
+</Project>

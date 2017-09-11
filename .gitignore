@@ -45,3 +45,16 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+*.suo
+.vs/attentionArt4/v15/Browse.VC.db
+*.opendb
+*.exp
+/obj
+*.dll
+bin/attentionArt4.lib
+*.exe
+bin/attentionArt3.lib
+*.db
+*.ipch
+.vs/attentionArt4/v15/Solution.VC.db-shm
+*.db-wal

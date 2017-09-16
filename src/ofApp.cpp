@@ -6,28 +6,6 @@ void ofApp::setup(){
 	ofEnableAlphaBlending();
 	ofBackground(255);
 
-	bounds = ofRectangle(0, 0, ofGetWidth() / 2 , ofGetHeight() / 2 );
-	vectorField.setup(bounds.getWidth(),bounds.getHeight(), 5);
-	vectorField.randomize();
-
-	int pointCount = 200;
-	int seed = 33;
-	vector<ofPoint>points = generateRandomPoints(pointCount, seed, bounds);
-
-	for (int i = 0;i < points.size();i++) {
-		Particle newParticle;
-		ofVec2f pos = points[i];//(ofRandom(0, bounds.getWidth()), ofRandom(0, bounds.getHeight()));
-		newParticle.setup(pos);
-		particles.push_back(newParticle);
-	}
-
-	voronoi.setBounds(bounds);
-	voronoi.setPoints(points);
-	voronoi.generate();
-	points.clear();
-	for (auto cell : voronoi.getCells()) {
-		points.push_back(cell.pt);
-	}
 
 	//GUI1
 	gui1.setup("Design", "settings1.xml",0,0);
@@ -36,7 +14,8 @@ void ofApp::setup(){
 	gui1.add(centerVoroDebug.setup("centerVoroDebug", true));
 	gui1.add(relaxVoronoi.setup("relax Voronoi", true));
 	gui1.add(scaleVectorfield.setup("scale vectorfield", 1, 0.1, 7));
-	gui1.add(animateVectorfield.setup("animate vectorfield", 0.5, 0.0,1.0));
+	gui1.add(animateVectorfield.setup("animate vectorfield", 0.5, 0.0,5.0));
+	gui1.add(maxVoroPtNum.setup("Maximum Voronoi", 300, 100, 1000));
 	gui1.add(blurRadius.setup("blurRadius", 10, 0.0, 20.0));
 	gui1.add(refreshPixel.setup("refreshPixel", false));
 	gui1.add(imagePaint.setup("imagePaint", false));
@@ -56,6 +35,32 @@ void ofApp::setup(){
 		gui2.add(positionColor[i].setup("pos color" + ofToString(i), (1.0 / 5.0)*(i + 1), 0, 1.0));
 	}
 	gui2.loadFromFile("settings2.xml");
+
+
+
+	bounds = ofRectangle(0, 0, ofGetWidth() / 2, ofGetHeight() / 2);
+	vectorField.setup(bounds.getWidth(), bounds.getHeight(), 5);
+	vectorField.randomize();
+
+	int seed = 33;
+	vector<ofPoint>points = generateRandomPoints(maxVoroPtNum, seed, bounds);
+
+	for (int i = 0;i < points.size();i++) {
+		Particle newParticle;
+		ofVec2f pos = points[i];//(ofRandom(0, bounds.getWidth()), ofRandom(0, bounds.getHeight()));
+		newParticle.setup(pos);
+		particles.push_back(newParticle);
+	}
+
+	voronoi.setBounds(bounds);
+	voronoi.setPoints(points);
+	voronoi.generate();
+	points.clear();
+	for (auto cell : voronoi.getCells()) {
+		points.push_back(cell.pt);
+	}
+
+
 
 	widthGrad = 510;
 	heightGrad = 1;
@@ -177,7 +182,23 @@ void ofApp::update(){
 	else {
 		for (int i = 0; i<particles.size(); i++) {
 			particles[i].move(vectorField.getVectorInterpolated(particles[i].pos.x, particles[i].pos.y, bounds.getWidth(), bounds.getHeight()));
-			particles[i].reset(bounds);
+			bool reachedBounds=particles[i].reset(bounds);
+			if (reachedBounds) {
+			//	particles.erase(particles.begin() + i);
+			}
+		}
+
+		if (particles.size() < maxVoroPtNum && ofGetFrameNum()%4==0) {
+			int seed = 33;
+			//vector<ofPoint>points = generateRandomPoints(1, seed, bounds);
+			vector<ofPoint>nPoints = generateRandomPoints(1, seed, bounds);
+			for (int i = 0;i < nPoints.size();i++) {
+				Particle newParticle;
+				ofVec2f pos = nPoints[i];//(ofRandom(0, bounds.getWidth()), ofRandom(0, bounds.getHeight()));
+				newParticle.setup(pos);
+				particles.push_back(newParticle);
+				//cout << "new pt:" << ofGetFrameNum() << endl;
+			}
 		}
 	}
 

@@ -18,7 +18,7 @@ public:
     void move(ofVec2f dir);
     void draw();
     void stayOnScreen(ofRectangle boundsScreen);
-	void reset(ofRectangle boundsScreen);
+	bool reset(ofRectangle boundsScreen);
     bool isOffScreen(ofRectangle boundsScreen);
     bool isDead();
     

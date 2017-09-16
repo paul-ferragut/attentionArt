@@ -52,6 +52,7 @@ class ofApp : public ofBaseApp{
 		ofxToggle colorMapDebug;
 		ofxToggle vectorFieldDebug;
 		ofxToggle centerVoroDebug;
+		ofxIntSlider maxVoroPtNum;
 		ofxToggle relaxVoronoi;
 		ofxFloatSlider scaleVectorfield;
 		ofxFloatSlider animateVectorfield;

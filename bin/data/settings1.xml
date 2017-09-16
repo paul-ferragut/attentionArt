@@ -1,0 +1,16 @@
+<group>
+	<colorMapDebug>0</colorMapDebug>
+	<vectorFieldDebug>0</vectorFieldDebug>
+	<centerVoroDebug>1</centerVoroDebug>
+	<scale_vectorfield>0.652</scale_vectorfield>
+	<animate_vectorfield>0.395</animate_vectorfield>
+	<blurRadius>9</blurRadius>
+	<refreshPixel>0</refreshPixel>
+	<imagePaint>0</imagePaint>
+	<paintDebug>0</paintDebug>
+<group/>
+<opacity>10.2</opacity>
+<opacity_paint>255</opacity_paint>
+	<opacity_refresh>7.65</opacity_refresh>
+<relax_Voronoi>0</relax_Voronoi>
+</group>

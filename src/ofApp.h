@@ -5,6 +5,7 @@
 #include "Particle.h"
 #include "ofxVoronoi.h"
 #include "ofxGui.h"
+#include "ofxAutoReloadedShader.h"
 
 #include "ofxFX.h"
 #include "ofxGrayscale.h"//    grayscale;
@@ -20,6 +21,7 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
+		void drawDebug();
 		void exit();
 
 		void keyPressed(int key);
@@ -36,7 +38,7 @@ class ofApp : public ofBaseApp{
 
 		vector <ofPoint> generateRandomPoints(int count, int seed, ofRectangle bounds);
 		ofxVoronoi voronoi;
-		vector<ofPoint> points;
+	//	vector<ofPoint> points;
 		ofRectangle bounds;
 		bool isBorder(ofPoint _pt);
 
@@ -44,12 +46,20 @@ class ofApp : public ofBaseApp{
 
 		vector <Particle> particles;
 		
-		ofxPanel gui;
+		ofxPanel gui1;
+		ofxFloatSlider opacityRefresh;
+		ofxFloatSlider opacityPaint;
 		ofxToggle colorMapDebug;
 		ofxToggle vectorFieldDebug;
 		ofxToggle centerVoroDebug;
+		ofxToggle relaxVoronoi;
 		ofxFloatSlider scaleVectorfield;
 		ofxFloatSlider animateVectorfield;
+
+		ofxPanel gui2;
+		ofxToggle gradientDebug;
+		ofxColorSlider color[5];
+		ofxFloatSlider positionColor[3];
 
 
 		ofxGrayscale    grayscale;
@@ -60,7 +70,7 @@ class ofApp : public ofBaseApp{
 
 		ofFbo           pingpong[2];
 
-		ofShader        shaderPaint;
+		ofxAutoReloadedShader        shaderPaint;
 
 		int     timer, width, height;//, blurRadius;
 		ofxIntSlider blurRadius;
@@ -69,6 +79,14 @@ class ofApp : public ofBaseApp{
 		ofxToggle paintDebug;
 
 		ofFbo FBO;
+
+
+		ofShader shaderGradientMap;
+		ofShader shaderGradient;
+
+		ofFbo gradientFbo;
+		int widthGrad;
+		int heightGrad;
 
 		//bool    bDebug;
 		//bool    bImage;

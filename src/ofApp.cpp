@@ -7,48 +7,61 @@ void ofApp::setup(){
 	ofBackground(255);
 
 	bounds = ofRectangle(0, 0, ofGetWidth() / 2 , ofGetHeight() / 2 );
-
 	vectorField.setup(bounds.getWidth(),bounds.getHeight(), 5);
-
 	vectorField.randomize();
 
 	int pointCount = 200;
 	int seed = 33;
+	vector<ofPoint>points = generateRandomPoints(pointCount, seed, bounds);
 
-	points = generateRandomPoints(pointCount, seed, bounds);
-
-	for (int i = 0;i < pointCount;i++) {
-
+	for (int i = 0;i < points.size();i++) {
 		Particle newParticle;
-		ofVec2f pos(ofRandom(0, bounds.getWidth()),  ofRandom(0, bounds.getHeight()));
+		ofVec2f pos = points[i];//(ofRandom(0, bounds.getWidth()), ofRandom(0, bounds.getHeight()));
 		newParticle.setup(pos);
 		particles.push_back(newParticle);
 	}
 
 	voronoi.setBounds(bounds);
-
 	voronoi.setPoints(points);
-
 	voronoi.generate();
-
 	points.clear();
 	for (auto cell : voronoi.getCells()) {
 		points.push_back(cell.pt);
 	}
 
-	gui.setup("GUI", "settings.xml");
+	//GUI1
+	gui1.setup("Design", "settings1.xml",0,0);
+	gui1.add(colorMapDebug.setup("colorMapDebug",true));
+	gui1.add(vectorFieldDebug.setup("vectorFieldDebug", true));
+	gui1.add(centerVoroDebug.setup("centerVoroDebug", true));
+	gui1.add(relaxVoronoi.setup("relax Voronoi", true));
+	gui1.add(scaleVectorfield.setup("scale vectorfield", 1, 0.1, 7));
+	gui1.add(animateVectorfield.setup("animate vectorfield", 0.5, 0.0,1.0));
+	gui1.add(blurRadius.setup("blurRadius", 10, 0.0, 20.0));
+	gui1.add(refreshPixel.setup("refreshPixel", false));
+	gui1.add(imagePaint.setup("imagePaint", false));
+	gui1.add(paintDebug.setup("paintDebug", false));
+	gui1.add(opacityPaint.setup("opacity paint", 255, 0.0, 255));
+	gui1.add(opacityRefresh.setup("opacity refresh", 255, 0.0, 255));
 
-	gui.add(colorMapDebug.setup("colorMapDebug",true));
-	gui.add(vectorFieldDebug.setup("vectorFieldDebug", true));
-	gui.add(centerVoroDebug.setup("centerVoroDebug", true));
+	gui1.loadFromFile("settings1.xml");
 
-	gui.add(scaleVectorfield.setup("scale vectorfield", 1, 0.1, 7));
-	gui.add(animateVectorfield.setup("animate vectorfield", 0.5, 0.0,1.0));
-	gui.add(blurRadius.setup("blurRadius", 10, 0.0, 20.0));
+	//GUI2
+	gui2.setup("Color","settings2.xml",0,400);
+	gui2.add(gradientDebug.setup("gradient", false));
+	for (int i = 0;i < 5;i++) {
+		gui2.add(color[i].setup("color " + ofToString(i), 0, 0, 255));
+	}
+	for (int i = 0;i < 3;i++) {
+		gui2.add(positionColor[i].setup("pos color" + ofToString(i), (1.0 / 5.0)*(i + 1), 0, 1.0));
+	}
+	gui2.loadFromFile("settings2.xml");
 
-	gui.add(refreshPixel.setup("refreshPixel", false));
-	gui.add(imagePaint.setup("imagePaint", false));
-	gui.add(paintDebug.setup("paintDebug", false));
+	widthGrad = 510;
+	heightGrad = 1;
+	gradientFbo.allocate(widthGrad, heightGrad, GL_RGB);
+	shaderGradient.load("gradient");
+	shaderGradientMap.load("gradientMap");
 
 	width = ofGetWidth();
 	height = ofGetHeight();
@@ -66,11 +79,13 @@ void ofApp::setup(){
 		pingpong[i].allocate(width, height, GL_RGBA);
 		pingpong[i].begin();
 		ofClear(0);
-		
 		pingpong[i].end();
 	}
 
-	string fragShader = STRINGIFY(uniform sampler2DRect backbuffer;
+	/*
+	string fragShader = STRINGIFY(
+		
+	uniform sampler2DRect backbuffer;
 	uniform sampler2DRect normals;
 	uniform sampler2DRect dampMap;
 
@@ -112,19 +127,36 @@ void ofApp::setup(){
 		gl_FragColor = color*(1.0 - inc) + newFrame*inc;
 	}
 	);
-
-
-
+	*/
 	FBO.allocate(width, height, GL_RGB, 8);
 
-	shaderPaint.setupShaderFromSource(GL_FRAGMENT_SHADER, fragShader);
-	shaderPaint.linkProgram();
+	//shaderPaint.setupShaderFromSource(GL_FRAGMENT_SHADER, fragShader);
+	//shaderPaint.bindDefaults();
+	//shaderPaint.linkProgram();
+	shaderPaint.load("shaderPaint");
 
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
 	ofSetWindowTitle("FPS:" + ofToString(ofGetFrameRate()));
+
+
+
+	gradientFbo.begin();
+	shaderGradient.begin();
+	shaderGradient.setUniform2f("u_resolution", widthGrad, heightGrad);
+	for (int i = 0;i < 5;i++) {
+		ofFloatColor col = ofColor(color[i]);
+		//cout << "col" << col << endl;
+		shaderGradient.setUniform3f("col" + ofToString(i + 1), col.r, col.g, col.b);
+	}
+	shaderGradient.setUniform1f("p1", positionColor[0]);
+	shaderGradient.setUniform1f("p2", positionColor[1]);
+	shaderGradient.setUniform1f("p3", positionColor[2]);
+	ofDrawRectangle(0, 0, widthGrad, heightGrad);
+	shaderGradient.end();
+	gradientFbo.end();
 
 	//vectorField.randomize();
 	vectorField.animate(animateVectorfield*0.004);
@@ -133,10 +165,22 @@ void ofApp::update(){
 	vectorField.bias(0, 0);
 	vectorField.blur();
 
-	for (int i = 0; i<particles.size(); i++) {
-		particles[i].move(vectorField.getVectorInterpolated(particles[i].pos.x, particles[i].pos.y, bounds.getWidth(), bounds.getHeight()));
-		particles[i].reset(bounds);
+
+	if (relaxVoronoi) {
+	
+		vector<ofxVoronoiCell>cells = voronoi.getCells();
+		for (int i = 0; i <cells.size(); i++) {
+			particles[i].pos = cells[i].pt;
+		}
+
 	}
+	else {
+		for (int i = 0; i<particles.size(); i++) {
+			particles[i].move(vectorField.getVectorInterpolated(particles[i].pos.x, particles[i].pos.y, bounds.getWidth(), bounds.getHeight()));
+			particles[i].reset(bounds);
+		}
+	}
+
 
 
 	timer++;
@@ -164,16 +208,24 @@ void ofApp::update(){
 		//shaderBlend.begin();
 		//image.draw(0, 0);
 		//cam.draw(0, 0);
+		shaderGradientMap.begin();
+		shaderGradientMap.setUniformTexture("gradient", gradientFbo.getTexture(), 1);
+		shaderGradientMap.setUniform1f("gradientWidth", gradientFbo.getWidth());
 		FBO.draw(0, 0);
 		//shaderBlend.end();
-
+		shaderGradientMap.end();
 		pingpong[0].end();
 
 		pingpong[1].begin();
 		//ofSetColor(255, gray2);
 		//image.draw(0, 0);
-		//cam.draw(0, 0);
-		FBO.draw(0, 0);
+		//cam.draw(0, 0);		
+		shaderGradientMap.begin();
+		shaderGradientMap.setUniformTexture("gradient", gradientFbo.getTexture(), 1);
+		shaderGradientMap.setUniform1f("gradientWidth", gradientFbo.getWidth());
+		ofSetColor(255, 255);
+		FBO.draw(0, 0);	
+		shaderGradientMap.end();
 		pingpong[1].end();
 
 		imagePaint = false;
@@ -190,9 +242,10 @@ void ofApp::update(){
 
 		pingpong[timer % 2].begin();//either 0 or 1
 							
-		if (refreshPixel) {
+		if (refreshPixel) {		
+			ofSetColor(255, 255, 255, opacityRefresh);
 			FBO.draw(0, 0);
-			refreshPixel = false;
+			//refreshPixel = false;
 		}
 
 		shaderPaint.begin();
@@ -201,9 +254,8 @@ void ofApp::update(){
 
 
 
-		ofSetColor(255, 255, 255, 255);
 		pingpong[(timer + 1) % 2].draw(0, 0);//either 0 or 1, opposite of [timer % 2]
-
+	
 
 		shaderPaint.end();
 		pingpong[timer % 2].end();
@@ -214,31 +266,49 @@ void ofApp::update(){
 	 mask.end();
 
 
+
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+	ofSetColor(255, 255, 255);
+
 
 	//ofRectangle bounds = voronoi.getBounds();
 	ofSetLineWidth(0);
 	ofNoFill();
 	ofSetColor(220);
 	ofDrawRectangle(bounds);
-
+	/*
 	for (int i = 0; i < points.size(); i++) {
-		/*
+	
 		if (ofDist(points[i].x, points[i].y, mouseX, mouseY) < 40) {
 			ofVec2f dif(points[i].x - mouseX, points[i].y - mouseY);
 			dif *= -0.01;
 			points[i].set(points[i] + dif);
 		}
-		*/
+	
 		points[i] = particles[i].pos;
 
 	}
+	*/
+	if (relaxVoronoi) {	
+		//voronoi.setPoints(points);
+		voronoi.relax();
+	
+	
+	}
+	else {
+		vector<ofPoint>pts;
+		for (int i = 0; i < particles.size(); i++) {
+			pts.push_back(particles[i].pos);
+		}
+		voronoi.setPoints(pts);
+		voronoi.generate();
+	}
 
-	voronoi.setPoints(points);
-	voronoi.generate();
+
+	
 
 	FBO.begin();
 	vector <ofxVoronoiCell> cells = voronoi.getCells();
@@ -295,7 +365,12 @@ void ofApp::draw(){
 
 		ofPushMatrix();		
 		ofScale(2, 2);
-		mesh.draw();
+
+		ofSetColor(255, 255, 255, 255);
+		//FBO.draw(0, 0);
+mesh.draw();
+
+		
 		ofPopMatrix();
 		
 		/*
@@ -342,14 +417,25 @@ void ofApp::draw(){
 	}
 	FBO.end();
 
-	
-
+	ofEnableAlphaBlending();
+	shaderGradientMap.begin();
+	shaderGradientMap.setUniformTexture("gradient", gradientFbo.getTexture(), 1);
+	shaderGradientMap.setUniform1f("gradientWidth", gradientFbo.getWidth());
 	ofSetColor(255, 255, 255,255);
-
-
 	FBO.draw(0,0);
-	ofSetColor(255, 255, 255, 255);
+	shaderGradientMap.end();
+
+	ofSetColor(255, 255, 255, opacityPaint);
 	pingpong[timer % 2].draw(0, 0);//,ofGetWidth(),ofGetHeight());
+
+
+	drawDebug();
+
+}
+
+void ofApp::drawDebug() {
+	//DEBUG
+	ofFill();
 	if (colorMapDebug) {
 		for (int i = 0; i<bounds.width; i+=4) {
 			for (int j = 0; j<bounds.height; j += 4) {
@@ -366,13 +452,18 @@ void ofApp::draw(){
 		normals.draw(width*0.5, 0, width*0.25, height*0.25);
 	}
 
-	ofSetColor(20, 20, 20);
+	
 	ofFill();
-
 	if(centerVoroDebug){
+		ofPushMatrix();
+		ofScale(2, 2);
+		ofSetColor(20, 20, 20);
 		for (int i = 0; i<particles.size(); i++) {
 			particles[i].draw();
 		}
+
+		ofPopMatrix();
+
 	}
 
 	if(vectorFieldDebug){
@@ -380,14 +471,18 @@ void ofApp::draw(){
 		vectorField.draw();
 	}
 
-	gui.draw();
+	ofSetColor(255, 255, 255);
+	if(gradientDebug)
+	gradientFbo.draw(0, ofGetHeight()-100, 500, 100);
 
-
-
+	gui1.draw();
+	gui2.draw();
 }
 
 void ofApp::exit()
 {
+	gui1.saveToFile("settings1.xml");
+	gui2.saveToFile("settings2.xml");
 }
 
 //--------------------------------------------------------------

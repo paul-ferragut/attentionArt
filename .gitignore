@@ -58,3 +58,5 @@ bin/attentionArt3.lib
 *.ipch
 .vs/attentionArt4/v15/Solution.VC.db-shm
 *.db-wal
+*.TMP
+*.lib

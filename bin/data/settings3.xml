@@ -1,0 +1,12 @@
+<group>
+	<use_Main_Var_GSR>1</use_Main_Var_GSR>
+	<main_Var_GSR>39</main_Var_GSR>
+	<main_Var_GSR_averaged>39</main_Var_GSR_averaged>
+	<beat>0</beat>
+	<averaging_main_var>57</averaging_main_var>
+	<stress_Threshold>13</stress_Threshold>
+	<relax_Threshold>83</relax_Threshold>
+	<stress_state_trigger>10</stress_state_trigger>
+	<relax_state_trigger>10</relax_state_trigger>
+<group/>
+</group>

@@ -32,7 +32,7 @@ void Particle::stayOnScreen(ofRectangle boundsScreen){
 
 
 bool Particle::reset(ofRectangle boundsScreen) {
-	ofRectangle bounds(boundsScreen.x + 1, boundsScreen.y + 1, boundsScreen.width - 1, boundsScreen.height - 1);
+	ofRectangle bounds(boundsScreen.x + 5, boundsScreen.y + 5, boundsScreen.width - 5, boundsScreen.height - 5);
 	boundsScreen = bounds;
 
 	if (pos.x < boundsScreen.x) 

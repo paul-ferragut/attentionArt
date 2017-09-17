@@ -6,9 +6,9 @@ void ofApp::setup(){
 	ofEnableAlphaBlending();
 	ofBackground(255);
 
-
+	setupPalettes();
 	//GUI1
-	gui1.setup("Design", "settings1.xml",0,0);
+	gui1.setup("Design", "settings1.xml",ofGetWidth()-210,0);
 	gui1.add(colorMapDebug.setup("colorMapDebug",true));
 	gui1.add(vectorFieldDebug.setup("vectorFieldDebug", true));
 	gui1.add(centerVoroDebug.setup("centerVoroDebug", true));
@@ -26,7 +26,7 @@ void ofApp::setup(){
 	gui1.loadFromFile("settings1.xml");
 
 	//GUI2
-	gui2.setup("Color","settings2.xml",0,400);
+	gui2.setup("Color","settings2.xml", ofGetWidth() - 420,0);
 	gui2.add(gradientDebug.setup("gradient", false));
 	for (int i = 0;i < 5;i++) {
 		gui2.add(color[i].setup("color " + ofToString(i), 0, 0, 255));
@@ -36,7 +36,34 @@ void ofApp::setup(){
 	}
 	gui2.loadFromFile("settings2.xml");
 
+	stressPaletteNum = ofRandom(NUM_PALETTES);
+	relaxPaletteNum = ofRandom(NUM_PALETTES);
 
+	//GUI2
+	gui3.setup("Interactivity", "settings3.xml", ofGetWidth() - 630, 0);
+	gui3.add(useMainVarGSR.setup("use Main Var GSR", false));
+	gui3.add(mainVarGSR.setup("main Var GSR", 0.0, 0.0, 100.0));
+	gui3.add(mainVarGSRAveraged.setup("main Var GSR averaged", 0.0, 0.0, 100.0));
+	gui3.add(beat.setup("beat", false));
+	gui3.add(averaging.setup("averaging main var", 10, 2, 300));
+	
+	gui3.add(relaxThreshold.setup("relax Threshold", 20, 1, 100));
+	gui3.add(stressThreshold.setup("stress Threshold", 80, 0, 100));
+
+	gui3.add(relaxStateTrigger.setup("relax state trigger", 10, 1, 600));
+	gui3.add(stressStateTrigger.setup("stress state trigger", 10, 1, 600));
+
+	gui3.loadFromFile("settings3.xml");
+
+	relaxCounter = 0;
+	stressCounter = 0;
+
+	trail.resize(2);
+	yGraph.resize(2);
+	xGraph = 0;
+	prevXGraph = 0;
+	//int stressPaletteNum;
+	//int relaxPaetteNum;
 
 	bounds = ofRectangle(0, 0, ofGetWidth() / 2, ofGetHeight() / 2);
 	vectorField.setup(bounds.getWidth(), bounds.getHeight(), 5);
@@ -60,8 +87,6 @@ void ofApp::setup(){
 		points.push_back(cell.pt);
 	}
 
-
-
 	widthGrad = 510;
 	heightGrad = 1;
 	gradientFbo.allocate(widthGrad, heightGrad, GL_RGB);
@@ -70,7 +95,7 @@ void ofApp::setup(){
 
 	width = ofGetWidth();
 	height = ofGetHeight();
-	//imagePaint = false;
+
 	grayscale.allocate(width, height);
 	inverse.allocate(width, height);
 	blur.allocate(width, height);
@@ -87,58 +112,14 @@ void ofApp::setup(){
 		pingpong[i].end();
 	}
 
-	/*
-	string fragShader = STRINGIFY(
-		
-	uniform sampler2DRect backbuffer;
-	uniform sampler2DRect normals;
-	uniform sampler2DRect dampMap;
-
-	void main() {
-		vec2 st = gl_TexCoord[0].st;
-
-		vec4 newFrame = texture2DRect(backbuffer, st);
-		vec4 color = vec4(0, 0, 0, 0);
-		vec2 norm = (texture2DRect(normals, st).rg - 0.5) * 2.0;
-		float damp = texture2DRect(dampMap, st).r;
-		float inc = (abs(norm.x) + abs(norm.y)) * 0.5;
-
-		vec2 offset[36];
-		int iTotal = 36;
-		float fTotal = 36.0;
-
-		float pi = 3.14159265358979323846;
-		float step = (pi*2.0) / fTotal;
-		float angle = 0.0;
-		for (int i = 0; i < iTotal; i++) {
-			offset[i].x = cos(angle);
-			offset[i].y = sin(angle);
-			angle += step;
-		}
-
-		float sources = 0.0;
-		for (int i = 0; i < iTotal; i++) {
-			vec4 goingTo = (texture2DRect(normals, st + offset[i]) - 0.5) * 2.0;
-
-			if (dot(goingTo.rg, offset[i]) < -1.0 / fTotal) {
-				sources += 1.0;
-				color += texture2DRect(backbuffer, st + offset[i]);
-			}
-		}
-
-		color = color / sources;
-		inc = 1.0 - damp;
-
-		gl_FragColor = color*(1.0 - inc) + newFrame*inc;
-	}
-	);
-	*/
 	FBO.allocate(width, height, GL_RGB, 8);
 
-	//shaderPaint.setupShaderFromSource(GL_FRAGMENT_SHADER, fragShader);
-	//shaderPaint.bindDefaults();
-	//shaderPaint.linkProgram();
 	shaderPaint.load("shaderPaint");
+
+	stateString[0] = "STRESS";
+	stateString[1] = "INBETWEEN";
+	stateString[2] = "RELAX";
+	stateString[3] = "IDLE";
 
 }
 
@@ -146,7 +127,73 @@ void ofApp::setup(){
 void ofApp::update(){
 	ofSetWindowTitle("FPS:" + ofToString(ofGetFrameRate()));
 
+	if (useMainVarGSR) {
+		 
+		bool inB = true;
 
+		if (mainVarGSRAveraged <= stressThreshold) {
+			stressCounter++;
+		}
+		else {
+			stressCounter--;
+		}
+
+		if (stressCounter < 0) {
+			stressCounter = 0;
+		}
+		if (stressCounter > stressStateTrigger*1.4) {
+			stressCounter = stressStateTrigger*1.4;
+		}
+		if (stressCounter > stressStateTrigger) {
+			interactionState = STRESS;
+			inB = false;
+		}
+		//
+		if (mainVarGSRAveraged >= relaxThreshold) {
+			relaxCounter++;
+		}
+		else {
+			relaxCounter--;
+		}
+
+		if (relaxCounter < 0) {
+			relaxCounter = 0;
+		}
+		if (relaxCounter > relaxStateTrigger*1.4) {
+			relaxCounter = relaxStateTrigger*1.4;
+		}
+		if (relaxCounter > relaxStateTrigger) {
+			interactionState = RELAX;
+			inB = false;
+		}
+
+		if (inB)interactionState = INBETWEEN;
+
+		if (prevInteractionState != interactionState) {
+
+			if (interactionState == RELAX) {
+				imagePaint = true;
+				refreshPixel = false;
+				relaxVoronoi = true;
+
+				stressPaletteNum = ofRandom(NUM_PALETTES);
+			}
+
+			if (interactionState == IDLE) {
+				relaxVoronoi = true;
+			}
+
+			if (interactionState == STRESS) {
+					relaxPaletteNum = ofRandom(NUM_PALETTES);
+			}
+
+			if (prevInteractionState == RELAX) { //&& interactionState==INBETWEEN STRESS IDLE
+				refreshPixel = true;
+			}
+		}
+		prevInteractionState = interactionState;
+	}
+	
 
 	gradientFbo.begin();
 	shaderGradient.begin();
@@ -288,6 +335,42 @@ void ofApp::update(){
 
 
 
+
+	 t = ofGetElapsedTimef();
+	 if (trail[0].size() == 0) {
+		 initTime = t;
+	 }
+	 t = t - initTime;
+	 int speed = 100;
+	 xGraph = int(t*speed) % ((ofGetWidth()/2));
+	 yGraph[0] = mainVarGSRAveraged;
+	 yGraph[1] = mainVarGSR;
+
+	 for (int i = 0;i<(int)trail.size();i++) {
+		 if (xGraph<prevXGraph) {
+			 trail[i].clear();
+		 }
+		 else {
+			 trail[i].addVertex(ofPoint(xGraph, yGraph[i]));
+
+		 }
+	 }
+
+	 prevXGraph = xGraph;
+
+	 if (mainVarHistory.size() >= averaging) {
+		 mainVarHistory.push_back(mainVarGSR);
+		 mainVarHistory.erase(mainVarHistory.begin());
+	 }
+	 else {
+		 mainVarHistory.push_back(mainVarGSR);
+	 }
+	 float averageSum = 0;
+	 for (int i = 0;i < mainVarHistory.size();i++) {
+		 averageSum += mainVarHistory[i];
+	 }
+	 mainVarGSRAveraged = averageSum / mainVarHistory.size();
+
 }
 
 //--------------------------------------------------------------
@@ -300,24 +383,9 @@ void ofApp::draw(){
 	ofNoFill();
 	ofSetColor(220);
 	ofDrawRectangle(bounds);
-	/*
-	for (int i = 0; i < points.size(); i++) {
-	
-		if (ofDist(points[i].x, points[i].y, mouseX, mouseY) < 40) {
-			ofVec2f dif(points[i].x - mouseX, points[i].y - mouseY);
-			dif *= -0.01;
-			points[i].set(points[i] + dif);
-		}
-	
-		points[i] = particles[i].pos;
 
-	}
-	*/
 	if (relaxVoronoi) {	
-		//voronoi.setPoints(points);
 		voronoi.relax();
-	
-	
 	}
 	else {
 		vector<ofPoint>pts;
@@ -450,6 +518,7 @@ mesh.draw();
 	pingpong[timer % 2].draw(0, 0);//,ofGetWidth(),ofGetHeight());
 
 
+
 	drawDebug();
 
 }
@@ -494,16 +563,50 @@ void ofApp::drawDebug() {
 
 	ofSetColor(255, 255, 255);
 	if(gradientDebug)
-	gradientFbo.draw(0, ofGetHeight()-100, 500, 100);
+	gradientFbo.draw(5, ofGetHeight()-105, ofGetWidth()/2 - 10, 100);
+
+
+	ofFill();
+	for (int i = 0;i<(int)trail.size();i++) {
+		ofEnableSmoothing();
+		ofPushMatrix();
+		ofTranslate(ofGetWidth() / 2 -5, ofGetHeight() - ((105 * i) + 105));
+		ofSetColor(255, 255, 255, 150);
+		ofDrawRectangle(0, 0, ofGetWidth() / 2, 100);
+		ofSetColor(50, 50, 255);
+		ofLine(0, relaxThreshold, ofGetWidth() / 2, relaxThreshold);
+		ofSetColor(255, 50, 50);
+		ofLine(0, stressThreshold, ofGetWidth() / 2, stressThreshold);
+		ofSetColor(0, 0, 0, 255);
+		if (interactionState == STRESS) {
+			ofSetColor(255, 50, 50);
+		}
+		if (interactionState == RELAX) {
+			ofSetColor(50, 50, 255);
+		}
+		if (interactionState == INBETWEEN) {
+			ofSetColor(0, 0, 0);
+		}
+		ofDrawCircle(xGraph - 5, yGraph[i], 6);
+		trail[i].draw();
+		ofPopMatrix();
+
+
+		ofDisableSmoothing();
+	}
+
+	ofDrawBitmapString("State: " + stateString[interactionState], 5, 5);
 
 	gui1.draw();
 	gui2.draw();
+	gui3.draw();
 }
 
 void ofApp::exit()
 {
 	gui1.saveToFile("settings1.xml");
 	gui2.saveToFile("settings2.xml");
+	gui3.saveToFile("settings3.xml");
 }
 
 //--------------------------------------------------------------
@@ -534,6 +637,10 @@ bool ofApp::isBorder(ofPoint _pt) {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+
+	if (key == 's') {
+		gui2.saveToFile( ofGetTimestampString() + ".xml" );
+	}
 
 }
 
@@ -585,4 +692,60 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
+}
+
+//--------------------------------------------------------------
+void ofApp::setupPalettes()
+{	
+	
+	for (int i = 0;i < NUM_PALETTES;i++) {
+
+		ofXml xml;
+		xml.load("relax/"+ofToString(i+1)+".xml");
+
+		vector<ofColor>indexCol;
+		for (int j = 0;j < 5;j++) {
+			vector<string>parsedCol = ofSplitString(xml.getValue("color_" + ofToString(j)), ",");
+			ofColor newCol(ofToInt(parsedCol[0]), ofToInt(parsedCol[1]), ofToInt(parsedCol[2]), ofToInt(parsedCol[3]));
+			indexCol.push_back(newCol);
+		}
+		colorRelax.push_back(indexCol);
+
+		vector<float>indexPosCol;
+		for (int j = 0;j < 3;j++) {
+			string value = xml.getValue("pos_color" + ofToString(j));
+			indexPosCol.push_back(ofToFloat(value));
+		}
+		colorPosRelax.push_back(indexPosCol);
+
+	}
+
+	for (int i = 0;i < NUM_PALETTES;i++) {
+
+		ofXml xml;
+		xml.load("stress/" + ofToString(i + 1) + ".xml");
+
+		vector<ofColor>indexCol;
+		for (int j = 0;j < 5;j++) {
+			vector<string>parsedCol = ofSplitString(xml.getValue("color_" + ofToString(j)), ",");
+			ofColor newCol(ofToInt(parsedCol[0]), ofToInt(parsedCol[1]), ofToInt(parsedCol[2]), ofToInt(parsedCol[3]));
+			indexCol.push_back(newCol);
+		}
+		colorStress.push_back(indexCol);
+
+		vector<float>indexPosCol;
+		for (int j = 0;j < 3;j++) {
+			string value = xml.getValue("pos_color" + ofToString(j));
+			indexPosCol.push_back(ofToFloat(value));
+		}
+		colorPosStress.push_back(indexPosCol);
+
+	}
+
+	//for (int i = 0;i < 5;i++) {
+	//	for (int j = 0;j < 3;j++) {
+			//cout << i << "i:" << colorPosRelax[i][j] << endl;
+	//	}
+	//}
+	
 }

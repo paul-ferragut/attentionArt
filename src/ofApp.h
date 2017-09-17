@@ -14,6 +14,12 @@
 #include "ofxNormals.h"      //normals;
 #include "ofxMask.h"        //mask;
 
+#define NUM_PALETTES 5
+
+#define STRESS 0
+#define	INBETWEEN 1
+#define RELAX 2
+#define IDLE 3
 
 class ofApp : public ofBaseApp{
 
@@ -35,6 +41,8 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+
+		void setupPalettes();
 
 		vector <ofPoint> generateRandomPoints(int count, int seed, ofRectangle bounds);
 		ofxVoronoi voronoi;
@@ -61,6 +69,28 @@ class ofApp : public ofBaseApp{
 		ofxToggle gradientDebug;
 		ofxColorSlider color[5];
 		ofxFloatSlider positionColor[3];
+
+		ofxPanel gui3;
+		ofxToggle useMainVarGSR;
+		ofxIntSlider mainVarGSR;
+		ofxIntSlider mainVarGSRAveraged;
+		ofxToggle beat;
+		ofxIntSlider averaging;
+		ofxIntSlider stressThreshold;
+		ofxIntSlider relaxThreshold;
+		ofxIntSlider stressStateTrigger;
+		ofxIntSlider relaxStateTrigger;
+
+		int stressCounter;
+		int relaxCounter;
+		int stressPaletteNum;
+		int relaxPaletteNum;
+	
+		vector<ofPolyline> trail;
+		vector<float> yGraph;
+		float xGraph, prevXGraph;
+		float radius, initTime, t;
+		vector<float> mainVarHistory;
 
 
 		ofxGrayscale    grayscale;
@@ -89,9 +119,18 @@ class ofApp : public ofBaseApp{
 		int widthGrad;
 		int heightGrad;
 
+		int interactionState;
+		int prevInteractionState;
+		string stateString[4];
 		//bool    bDebug;
 		//bool    bImage;
 
+		
 
+		vector<vector<ofColor>>colorRelax;
+		vector<vector<ofColor>>colorStress;
+
+		vector<vector<float>>colorPosRelax;
+		vector<vector<float>>colorPosStress;
 
 };

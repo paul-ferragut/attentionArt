@@ -22,6 +22,11 @@ void ofApp::setup(){
 	gui1.add(paintDebug.setup("paintDebug", false));
 	gui1.add(opacityPaint.setup("opacity paint", 255, 0.0, 255));
 	gui1.add(opacityRefresh.setup("opacity refresh", 255, 0.0, 255));
+	gui1.add(debugDistort.setup("debug distort", false));
+	for (int i = 0;i < 3;i++) {
+		gui1.add(val[i].setup("val" + ofToString(i), 0.0, 0.0, 1.0));
+	}
+
 
 	gui1.loadFromFile("settings1.xml");
 
@@ -29,6 +34,14 @@ void ofApp::setup(){
 	edgeStressAnimate=4.5;
 	edgeRelaxScale=0.4;
 	edgeRelaxAnimate=0.5;
+
+
+	edgeStressVal[0]=0.5;
+	edgeStressVal[1] =1.0;
+	edgeStressVal[2] =0.1;
+	edgeRelaxVal[0]=0;
+	edgeRelaxVal[1] = 0;
+	edgeRelaxVal[2] = 0;
 
 	//GUI2
 	gui2.setup("Color","settings2.xml", ofGetWidth() - 420,0);
@@ -134,6 +147,7 @@ void ofApp::setup(){
 	}
 
 	FBO.allocate(width, height, GL_RGB, 8);
+	FBO2.allocate(width, height, GL_RGB, 8);
 
 	shaderPaint.load("shaderPaint");
 
@@ -142,6 +156,25 @@ void ofApp::setup(){
 	stateString[2] = "RELAX";
 	stateString[3] = "IDLE";
 
+
+	shaderPost.load("POST");
+	int num = arrayLength;
+	p.assign(num, particleShader());
+	//currentMode = PARTICLE_MODE_ATTRACT;
+
+	//currentModeStr = "1 - PARTICLE_MODE_ATTRACT: attracts to mouse";
+
+	ofRectangle distortRect1(0,0,ofGetWidth(),ofGetHeight());
+		ofRectangle distortRect2(0, 0, ofGetWidth(), ofGetHeight());
+	for (unsigned int i = 0; i < p.size(); i++) {
+		//	p[i].setMode(currentMode);
+		//	p[i].setAttractPoints(&attractPointsWithMovement);;
+		p[i].reset(distortRect1, distortRect2);
+	}
+
+	fullScreen=false;
+	guiVisible=true;
+	screenGrab=false;
 }
 
 //--------------------------------------------------------------
@@ -244,8 +277,11 @@ void ofApp::update(){
 		scaleVectorfield= ofLerp(edgeRelaxScale,edgeStressScale , normVal);
 		animateVectorfield= ofLerp(edgeRelaxAnimate, edgeStressAnimate, normVal);
 
-	}
-	
+		for (int i = 0;i < 3;i++) {
+			val[i] = ofLerp(edgeRelaxVal[i], edgeStressVal[i], normVal);
+		}
+
+	}	
 
 	gradientFbo.begin();
 	shaderGradient.begin();
@@ -321,31 +357,31 @@ void ofApp::update(){
 		normals.update();
 
 		pingpong[0].begin();
-		
-
-		//pingpong[1].draw(0, 0);
-
-		//shaderBlend.begin();
-		//image.draw(0, 0);
-		//cam.draw(0, 0);
+		/*
 		shaderGradientMap.begin();
 		shaderGradientMap.setUniformTexture("gradient", gradientFbo.getTexture(), 1);
 		shaderGradientMap.setUniform1f("gradientWidth", gradientFbo.getWidth());
 		FBO.draw(0, 0);
-		//shaderBlend.end();
 		shaderGradientMap.end();
+		*/
+		//drawWithPost();
+		ofSetColor(255, 255);
+		FBO.draw(0, 0);
 		pingpong[0].end();
 
-		pingpong[1].begin();
-		//ofSetColor(255, gray2);
-		//image.draw(0, 0);
-		//cam.draw(0, 0);		
+		pingpong[1].begin();	
+		/*
 		shaderGradientMap.begin();
 		shaderGradientMap.setUniformTexture("gradient", gradientFbo.getTexture(), 1);
 		shaderGradientMap.setUniform1f("gradientWidth", gradientFbo.getWidth());
-		ofSetColor(255, 255);
+		
 		FBO.draw(0, 0);	
 		shaderGradientMap.end();
+		*/
+		//drawWithPost();
+		ofSetColor(255, 255);
+		FBO.draw(0, 0);
+
 		pingpong[1].end();
 
 		imagePaint = false;
@@ -423,14 +459,19 @@ void ofApp::update(){
 	 }
 	 mainVarGSRAveraged = averageSum / mainVarHistory.size();
 
+
+	 for (unsigned int i = 0; i < p.size(); i++) {
+		 //p[i].setMode(currentMode);
+		 p[i].update();
+		 arrayParticleSize[i] = ofMap(p[i].radius, 0, (ofGetWidth() + ofGetHeight()) / 2, 0, 1.0);
+	 }
+
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
 	ofSetColor(255, 255, 255);
 
-
-	//ofRectangle bounds = voronoi.getBounds();
 	ofSetLineWidth(0);
 	ofNoFill();
 	ofSetColor(220);
@@ -448,9 +489,6 @@ void ofApp::draw(){
 		voronoi.generate();
 	}
 
-
-	
-
 	FBO.begin();
 	vector <ofxVoronoiCell> cells = voronoi.getCells();
 	for (int i = 0; i<cells.size(); i++) {
@@ -463,22 +501,6 @@ void ofApp::draw(){
 		//
 		mesh.setMode(OF_PRIMITIVE_TRIANGLES);
 			
-		//CRYSTAL LIKE
-		/*
-		for (int j = 0; j < cells[i].pts.size(); j++) {
-			mesh.addVertex(cells[i].pts[j]);
-			mesh.addColor(vectorField.noiseValAtPos(cells[i].pts[0]));
-			if (j == cells[i].pts.size() - 1) {
-				mesh.addVertex(cells[i].pts[0]);
-			}
-			else {
-				mesh.addVertex(cells[i].pts[j+1]);
-			}
-			mesh.addColor(vectorField.noiseValAtPos(cells[i].pts[0]));
-			mesh.addVertex(cells[i].pt);
-			mesh.addColor(vectorField.noiseValAtPos(cells[i].pt));
-		}
-		*/
 		int indexCount=0;
 		for (int j = 0; j < cells[i].pts.size(); j++) {
 
@@ -508,69 +530,22 @@ void ofApp::draw(){
 		ofScale(2, 2);
 
 		ofSetColor(255, 255, 255, 255);
-		//FBO.draw(0, 0);
-mesh.draw();
 
+		mesh.draw();
 		
 		ofPopMatrix();
-		
-		/*
-		mesh.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
-		
-		mesh.addColor(vectorField.noiseValAtPos(cells[i].pts[0]));
-		for (int j = 0; j < cells[i].pts.size(); j++) {
-			
-			mesh.addVertex(cells[i].pts[j]);
-			mesh.addColor(vectorField.noiseValAtPos(cells[i].pts[0]));
-		}
-		mesh.addVertex(cells[i].pts[0]);
-		mesh.addColor(vectorField.noiseValAtPos(cells[i].pts[0]));
 
-		mesh.draw();
-		*/
-
-
-		/*
-		mesh.setMode(OF_PRIMITIVE_LINE_LOOP);
-		mesh.addVertices(cells[i].pts);
-
-		//for (int i = 0;i < cells[i].pts.size();i++) {
-			//mesh.addColor(col1);
-		//}
-		
-		mesh.draw();
-		mesh.clear();
-		for (int j = 0; j < cells[i].pts.size(); j++) {
-			mesh.addVertex(cells[i].pt);
-			mesh.addVertex(cells[i].pts[j]);
-		}
-
-		ofSetColor(120);
-		mesh.draw();// CRASHING
-		*/
-		// Draw cell points
-		//ofSetColor(ofColor::fromHsb(255. * i / cells.size(), 255., 255.));
-
-		//ofFill();
-		//ofDrawCircle(cells[i].pt, 2);
-
-		
 	}
 	FBO.end();
 
 	ofEnableAlphaBlending();
-	shaderGradientMap.begin();
-	shaderGradientMap.setUniformTexture("gradient", gradientFbo.getTexture(), 1);
-	shaderGradientMap.setUniform1f("gradientWidth", gradientFbo.getWidth());
-	ofSetColor(255, 255, 255,255);
-	FBO.draw(0,0);
-	shaderGradientMap.end();
+	
+	drawWithPost();
 
 	ofSetColor(255, 255, 255, opacityPaint);
 	pingpong[timer % 2].draw(0, 0);//,ofGetWidth(),ofGetHeight());
 
-
-
+	if(guiVisible)
 	drawDebug();
 
 }
@@ -648,6 +623,13 @@ void ofApp::drawDebug() {
 		ofDisableSmoothing();
 	}
 
+	if (debugDistort) {
+	for (unsigned int i = 0; i < p.size(); i++) {
+		p[i].draw();
+		ofDrawBitmapStringHighlight(ofToString(i), p[i].pos);
+	}
+	}
+
 	
 
 	gui1.draw();
@@ -691,9 +673,23 @@ bool ofApp::isBorder(ofPoint _pt) {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
-	if (key == 's') {
+	if (key == 'c') {
 		gui2.saveToFile( ofGetTimestampString() + ".xml" );
 	}
+
+	if (key == 'f') {
+		fullScreen = !fullScreen;
+		ofToggleFullscreen();
+	}
+	if (key == 'g') {
+		guiVisible = !guiVisible;
+	}
+	if (key == 's') {
+		screenGrab = !screenGrab;
+		ofSaveScreen(ofGetTimestampString() + ".png");
+	}
+
+
 
 }
 
@@ -801,4 +797,44 @@ void ofApp::setupPalettes()
 	//	}
 	//}
 	
+}
+
+
+void ofApp::drawWithPost() {
+
+
+	FBO2.begin();
+	ofClear(255);
+	shaderGradientMap.begin();
+	shaderGradientMap.setUniformTexture("gradient", gradientFbo.getTexture(), 1);
+	shaderGradientMap.setUniform1f("gradientWidth", gradientFbo.getWidth());
+	ofSetColor(255, 255, 255, 255);
+	FBO.draw(0, 0);
+	shaderGradientMap.end();
+	FBO2.end();
+
+	ofEnableAlphaBlending();
+	FBO.begin();
+	ofClear(255);
+	shaderPost.begin();
+	shaderPost.setUniform1f("elapsedTime", ofGetElapsedTimeMillis()*0.00003);
+	shaderPost.setUniform2f("resolution", ofGetWidth(), ofGetHeight());
+	shaderPost.setUniform1f("alpha", 1.0);
+	for (int i = 0;i < p.size();i++) {
+		arrayUniform[i].x = p[i].pos.x;
+		arrayUniform[i].y = ofMap(p[i].pos.y, 0, ofGetHeight(), ofGetHeight(), 0);
+	}
+	shaderPost.setUniform2fv("posP", &arrayUniform[0].x, arrayLength);
+	shaderPost.setUniform1fv("radiusP", &arrayParticleSize[0], arrayLength);
+	for (int i = 0;i < 3;i++) {
+		shaderPost.setUniform1f("val" + ofToString(i + 1), (float)val[i]);
+	}
+	shaderPost.setUniformTexture("fboTexture", FBO2.getTextureReference(0), 0);
+	ofSetColor(255, 255, 255);
+	ofDisableAlphaBlending();
+	FBO2.draw(0, 0);
+	shaderPost.end();
+	FBO.end();
+
+	FBO.draw(0, 0);
 }

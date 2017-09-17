@@ -9,10 +9,12 @@
 
 #include "ofxFX.h"
 #include "ofxGrayscale.h"//    grayscale;
-#include "ofxInverse.h"    //  inverse;
+#include "ofxInverse.h"    //  inverse; //TO DO REMOVE
 #include "ofxGaussianBlur.h" //blur;
 #include "ofxNormals.h"      //normals;
 #include "ofxMask.h"        //mask;
+
+#include "particleShader.h"
 
 #define NUM_PALETTES 5
 
@@ -43,6 +45,7 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 		void setupPalettes();
+		void drawWithPost();
 
 		vector <ofPoint> generateRandomPoints(int count, int seed, ofRectangle bounds);
 		ofxVoronoi voronoi;
@@ -64,6 +67,7 @@ class ofApp : public ofBaseApp{
 		ofxToggle relaxVoronoi;
 		ofxFloatSlider scaleVectorfield;
 		ofxFloatSlider animateVectorfield;
+		ofxToggle debugDistort;
 
 		ofxPanel gui2;
 		ofxToggle gradientDebug;
@@ -115,7 +119,7 @@ class ofApp : public ofBaseApp{
 		ofxToggle paintDebug;
 
 		ofFbo FBO;
-
+		ofFbo FBO2;
 
 		ofShader shaderGradientMap;
 		ofShader shaderGradient;
@@ -140,4 +144,17 @@ class ofApp : public ofBaseApp{
 		float edgeRelaxScale;
 		float edgeRelaxAnimate;
 
+		float edgeStressVal[3];
+		float edgeRelaxVal[3];
+
+		ofShader shaderPost;
+		ofxFloatSlider val[3];
+		static const int arrayLength = 10;
+		ofVec2f arrayUniform[arrayLength];
+		float arrayParticleSize[arrayLength];
+		vector<particleShader> p;
+
+		bool fullScreen;
+		bool guiVisible;
+		bool screenGrab;
 };

@@ -11,7 +11,11 @@
 <group/>
 <opacity>10.2</opacity>
 <opacity_paint>255</opacity_paint>
-	<opacity_refresh>7.65</opacity_refresh>
+	<opacity_refresh>11.475</opacity_refresh>
 <relax_Voronoi>0</relax_Voronoi>
 <Maximum_Voronoi>446</Maximum_Voronoi>
+<val0>0.5</val0>
+	<val1>1</val1>
+	<val2>0.1</val2>
+<debug_distort>0</debug_distort>
 </group>

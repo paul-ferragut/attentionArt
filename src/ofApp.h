@@ -70,6 +70,11 @@ class ofApp : public ofBaseApp{
 		ofxColorSlider color[5];
 		ofxFloatSlider positionColor[3];
 
+		ofColor colorRelaxCurrent[5];
+		float positionColorRelaxCurrent[3];
+		ofColor colorStressCurrent[5];
+		float positionColorStressCurrent[3];
+
 		ofxPanel gui3;
 		ofxToggle useMainVarGSR;
 		ofxIntSlider mainVarGSR;
@@ -122,15 +127,17 @@ class ofApp : public ofBaseApp{
 		int interactionState;
 		int prevInteractionState;
 		string stateString[4];
-		//bool    bDebug;
-		//bool    bImage;
 
-		
 
 		vector<vector<ofColor>>colorRelax;
 		vector<vector<ofColor>>colorStress;
 
 		vector<vector<float>>colorPosRelax;
 		vector<vector<float>>colorPosStress;
+
+		float edgeStressScale;
+		float edgeStressAnimate;
+		float edgeRelaxScale;
+		float edgeRelaxAnimate;
 
 };

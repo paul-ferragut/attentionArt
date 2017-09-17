@@ -2,10 +2,10 @@
 	<colorMapDebug>0</colorMapDebug>
 	<vectorFieldDebug>0</vectorFieldDebug>
 	<centerVoroDebug>0</centerVoroDebug>
-	<scale_vectorfield>1.618</scale_vectorfield>
-	<animate_vectorfield>4.475</animate_vectorfield>
+	<scale_vectorfield>5</scale_vectorfield>
+	<animate_vectorfield>4.5</animate_vectorfield>
 	<blurRadius>9</blurRadius>
-	<refreshPixel>0</refreshPixel>
+	<refreshPixel>1</refreshPixel>
 	<imagePaint>0</imagePaint>
 	<paintDebug>0</paintDebug>
 <group/>

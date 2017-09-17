@@ -6,7 +6,7 @@ void ofApp::setup(){
 	ofEnableAlphaBlending();
 	ofBackground(255);
 
-	setupPalettes();
+
 	//GUI1
 	gui1.setup("Design", "settings1.xml",ofGetWidth()-210,0);
 	gui1.add(colorMapDebug.setup("colorMapDebug",true));
@@ -25,6 +25,11 @@ void ofApp::setup(){
 
 	gui1.loadFromFile("settings1.xml");
 
+	edgeStressScale=5;
+	edgeStressAnimate=4.5;
+	edgeRelaxScale=0.4;
+	edgeRelaxAnimate=0.5;
+
 	//GUI2
 	gui2.setup("Color","settings2.xml", ofGetWidth() - 420,0);
 	gui2.add(gradientDebug.setup("gradient", false));
@@ -35,9 +40,25 @@ void ofApp::setup(){
 		gui2.add(positionColor[i].setup("pos color" + ofToString(i), (1.0 / 5.0)*(i + 1), 0, 1.0));
 	}
 	gui2.loadFromFile("settings2.xml");
-
+	
+	
+	setupPalettes();
 	stressPaletteNum = ofRandom(NUM_PALETTES);
 	relaxPaletteNum = ofRandom(NUM_PALETTES);
+
+	for (int i = 0;i < 5;i++) {
+		colorRelaxCurrent[i] = colorRelax[relaxPaletteNum][i];
+	}
+	for (int i = 0;i < 3;i++) {
+		positionColorRelaxCurrent[i] = colorPosRelax[relaxPaletteNum][i];
+	}
+	for (int i = 0;i < 5;i++) {
+		colorStressCurrent[i] = colorStress[stressPaletteNum][i];
+	}
+	for (int i = 0;i < 3;i++) {
+		positionColorStressCurrent[i] = colorPosStress[stressPaletteNum][i];
+	}
+
 
 	//GUI2
 	gui3.setup("Interactivity", "settings3.xml", ofGetWidth() - 630, 0);
@@ -130,7 +151,7 @@ void ofApp::update(){
 	if (useMainVarGSR) {
 		 
 		bool inB = true;
-
+		//STATE MANAGEMENT
 		if (mainVarGSRAveraged <= stressThreshold) {
 			stressCounter++;
 		}
@@ -169,14 +190,22 @@ void ofApp::update(){
 
 		if (inB)interactionState = INBETWEEN;
 
+
+		//NEW STATE EVENT
 		if (prevInteractionState != interactionState) {
 
 			if (interactionState == RELAX) {
 				imagePaint = true;
 				refreshPixel = false;
-				relaxVoronoi = true;
+				relaxVoronoi = false;
 
 				stressPaletteNum = ofRandom(NUM_PALETTES);
+				for (int i = 0;i < 5;i++) {
+					colorStressCurrent[i] = colorStress[stressPaletteNum][i];
+				}
+				for (int i = 0;i < 3;i++) {
+					positionColorStressCurrent[i] = colorPosStress[stressPaletteNum][i];
+				}
 			}
 
 			if (interactionState == IDLE) {
@@ -185,13 +214,36 @@ void ofApp::update(){
 
 			if (interactionState == STRESS) {
 					relaxPaletteNum = ofRandom(NUM_PALETTES);
+					for (int i = 0;i < 5;i++) {
+						colorRelaxCurrent[i] = colorRelax[relaxPaletteNum][i];
+					}
+					for (int i = 0;i < 3;i++) {
+						positionColorRelaxCurrent[i] = colorPosRelax[relaxPaletteNum][i];
+					}
 			}
-
 			if (prevInteractionState == RELAX) { //&& interactionState==INBETWEEN STRESS IDLE
 				refreshPixel = true;
 			}
 		}
 		prevInteractionState = interactionState;
+
+		//CONSTANT UPDATING
+		//COLORS UPDATING
+		float normVal=ofMap(mainVarGSRAveraged,relaxThreshold ,stressThreshold , 0.0, 1.00,true);
+		for (int i = 0;i < 5;i++) {
+			float redN = ofLerp(colorRelaxCurrent[i].r, colorStressCurrent[i].r, normVal);
+			float greenN = ofLerp(colorRelaxCurrent[i].g, colorStressCurrent[i].g, normVal);
+			float blueN = ofLerp(colorRelaxCurrent[i].b, colorStressCurrent[i].b, normVal);
+			color[i] = ofColor(redN, greenN, blueN);
+		}
+		for (int i = 0;i < 3;i++) {
+			positionColor[i]= ofLerp(positionColorRelaxCurrent[i], positionColorStressCurrent[i], normVal);
+		}
+		//SPEED UPDATING
+
+		scaleVectorfield= ofLerp(edgeRelaxScale,edgeStressScale , normVal);
+		animateVectorfield= ofLerp(edgeRelaxAnimate, edgeStressAnimate, normVal);
+
 	}
 	
 
@@ -571,6 +623,7 @@ void ofApp::drawDebug() {
 		ofEnableSmoothing();
 		ofPushMatrix();
 		ofTranslate(ofGetWidth() / 2 -5, ofGetHeight() - ((105 * i) + 105));
+		ofDrawBitmapString("State: " + stateString[interactionState], 15, 15);
 		ofSetColor(255, 255, 255, 150);
 		ofDrawRectangle(0, 0, ofGetWidth() / 2, 100);
 		ofSetColor(50, 50, 255);
@@ -595,7 +648,7 @@ void ofApp::drawDebug() {
 		ofDisableSmoothing();
 	}
 
-	ofDrawBitmapString("State: " + stateString[interactionState], 5, 5);
+	
 
 	gui1.draw();
 	gui2.draw();

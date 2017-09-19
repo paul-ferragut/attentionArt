@@ -29,6 +29,11 @@ void ofApp::setup(){
 
 
 	gui1.loadFromFile("settings1.xml");
+	relaxVoronoi = false;
+	
+	if (useUDPRead) {
+		setupUdp();
+	}
 
 	edgeStressScale=5;
 	edgeStressAnimate=4.5;
@@ -78,6 +83,9 @@ void ofApp::setup(){
 	gui3.add(useMainVarGSR.setup("use Main Var GSR", false));
 	gui3.add(mainVarGSR.setup("main Var GSR", 0.0, 0.0, 100.0));
 	gui3.add(mainVarGSRAveraged.setup("main Var GSR averaged", 0.0, 0.0, 100.0));
+	
+	gui3.add(useUDPRead.setup("use UDP read",false));
+
 	gui3.add(beat.setup("beat", false));
 	gui3.add(averaging.setup("averaging main var", 10, 2, 300));
 	
@@ -86,14 +94,23 @@ void ofApp::setup(){
 
 	gui3.add(relaxStateTrigger.setup("relax state trigger", 10, 1, 600));
 	gui3.add(stressStateTrigger.setup("stress state trigger", 10, 1, 600));
+	gui3.add(idleStateTrigger.setup("idle state trigger", 100, 1, 600));
+	gui3.add(usePreset.setup("use preset", false));
+	gui3.add(restartPreset.setup("restart preset", false));
+	gui3.add(weightPreset.setup("weight preset", 25, 0, 49));
 
 	gui3.loadFromFile("settings3.xml");
 
+	loadPreset();
+
 	relaxCounter = 0;
 	stressCounter = 0;
+	idleCounter = 0;
 
-	trail.resize(2);
-	yGraph.resize(2);
+	timerGSR = 0;
+
+	trail.resize(3);
+	yGraph.resize(3);
 	xGraph = 0;
 	prevXGraph = 0;
 	//int stressPaletteNum;
@@ -221,6 +238,22 @@ void ofApp::update(){
 			inB = false;
 		}
 
+
+		//IDLE STATE
+		if (mainVarGSRAveraged < prevMainVarGSRAveraged + 1.0 && mainVarGSRAveraged > prevMainVarGSRAveraged - 1.0) {
+			idleCounter++;
+			if (idleCounter > idleStateTrigger) {
+				idleCounter = idleStateTrigger;
+				interactionState = IDLE;
+				inB = false;
+			}
+		}
+		else {
+			idleCounter = 0;
+		}
+		prevMainVarGSRAveraged = mainVarGSRAveraged;
+
+
 		if (inB)interactionState = INBETWEEN;
 
 
@@ -243,9 +276,26 @@ void ofApp::update(){
 
 			if (interactionState == IDLE) {
 				relaxVoronoi = true;
+				//refreshPixel = false;
+
+				for (int i = 0;i < 5;i++) {
+				colLastIdle[i]=color[i];
+				}
+				for (int i = 0;i < 3;i++) {
+					posLastIdle[i] = positionColor[i];
+				}
+				for (int i = 0;i < 3;i++) {
+					valLastIdle[i] = val[i];
+				}
+				animateLastIdle = animateVectorfield;
+				scaleVecLastIdle = scaleVectorfield;
+
+				idleTransitionCounter = 0;
+				cout << "new IDLE State" << endl;
 			}
 
 			if (interactionState == STRESS) {
+				relaxVoronoi = false;
 					relaxPaletteNum = ofRandom(NUM_PALETTES);
 					for (int i = 0;i < 5;i++) {
 						colorRelaxCurrent[i] = colorRelax[relaxPaletteNum][i];
@@ -257,31 +307,94 @@ void ofApp::update(){
 			if (prevInteractionState == RELAX) { //&& interactionState==INBETWEEN STRESS IDLE
 				refreshPixel = true;
 			}
+			if (prevInteractionState == IDLE) { //&& interactionState==INBETWEEN STRESS IDLE
+				//timer= ofGetElapsedTimeMillis();
+				lastTimeMeasured = ofGetElapsedTimeMillis();
+			}
 		}
 		prevInteractionState = interactionState;
 
+		if (interactionState != IDLE) {
 		//CONSTANT UPDATING
 		//COLORS UPDATING
-		float normVal=ofMap(mainVarGSRAveraged,relaxThreshold ,stressThreshold , 0.0, 1.00,true);
-		for (int i = 0;i < 5;i++) {
-			float redN = ofLerp(colorRelaxCurrent[i].r, colorStressCurrent[i].r, normVal);
-			float greenN = ofLerp(colorRelaxCurrent[i].g, colorStressCurrent[i].g, normVal);
-			float blueN = ofLerp(colorRelaxCurrent[i].b, colorStressCurrent[i].b, normVal);
-			color[i] = ofColor(redN, greenN, blueN);
-		}
-		for (int i = 0;i < 3;i++) {
-			positionColor[i]= ofLerp(positionColorRelaxCurrent[i], positionColorStressCurrent[i], normVal);
-		}
-		//SPEED UPDATING
+			float normVal=ofMap(mainVarGSRAveraged,relaxThreshold ,stressThreshold , 0.0, 1.00,true);
+			for (int i = 0;i < 5;i++) {
+				float redN = ofLerp(colorRelaxCurrent[i].r, colorStressCurrent[i].r, normVal);
+				float greenN = ofLerp(colorRelaxCurrent[i].g, colorStressCurrent[i].g, normVal);
+				float blueN = ofLerp(colorRelaxCurrent[i].b, colorStressCurrent[i].b, normVal);
+				color[i] = ofColor(redN, greenN, blueN);
+			}
+			for (int i = 0;i < 3;i++) {
+				positionColor[i]= ofLerp(positionColorRelaxCurrent[i], positionColorStressCurrent[i], normVal);
+			}
+			//SPEED UPDATING
 
-		scaleVectorfield= ofLerp(edgeRelaxScale,edgeStressScale , normVal);
-		animateVectorfield= ofLerp(edgeRelaxAnimate, edgeStressAnimate, normVal);
+			scaleVectorfield= ofLerp(edgeRelaxScale,edgeStressScale , normVal);
+			animateVectorfield= ofLerp(edgeRelaxAnimate, edgeStressAnimate, normVal);
 
-		for (int i = 0;i < 3;i++) {
-			val[i] = ofLerp(edgeRelaxVal[i], edgeStressVal[i], normVal);
+			for (int i = 0;i < 3;i++) {
+				val[i] = ofLerp(edgeRelaxVal[i], edgeStressVal[i], normVal);
+			}
+
+			//reset timer after duration //maybe trigger idle or pause the update? THIS IS IN IDLE
+			if (timerGSR >= DURATION ) {
+					lastTimeMeasured = ofGetElapsedTimeMillis();
+					//usePreset = false; //????????????
+					//usePreset = false;
+					//restartPresetTimeLine();
+			}
+			else {
+				timerGSR = ofGetElapsedTimeMillis() - lastTimeMeasured;
+				float currentPresetVal = getPresetVal(ofMap(timerGSR, 0, DURATION, 0.0, 1.0));
+				float flippedWeightPreset = ofMap(weightPreset, 0, 49, 49, 0);
+				currentPresetVal = ofMap(currentPresetVal, 200, 300, flippedWeightPreset, 100- flippedWeightPreset);
+				//
+				if (usePreset) {
+					mainVarGSR = currentPresetVal;
+				}
+				
+			}
+
+
+	
 		}
+		else {
+		//TO IDLE UPDATE
+		
+			//float normVal = ofMap(mainVarGSRAveraged, relaxThreshold, stressThreshold, 0.0, 1.00, true);
+			idleTransitionCounter += 0.004;
+			if (idleTransitionCounter > 1.0) {
+				idleTransitionCounter = 1.0;
+			}
 
+			for (int i = 0;i < 5;i++) {
+				float redN = ofLerp(colLastIdle[i].r,i*50, idleTransitionCounter);
+				float greenN = ofLerp(colLastIdle[i].g, i * 50, idleTransitionCounter);
+				float blueN = ofLerp(colLastIdle[i].b, i * 50, idleTransitionCounter);
+				color[i] = ofColor(redN, greenN, blueN);
+			}
+			
+			//for (int i = 0; i < 3; i++) {
+				positionColor[0] = ofLerp(posLastIdle[0],0.25,idleTransitionCounter);
+				positionColor[1] = ofLerp(posLastIdle[1], 0.5, idleTransitionCounter);
+				positionColor[2] = ofLerp(posLastIdle[2], 0.75, idleTransitionCounter);
+			//}
+				for (int i = 0; i < 3; i++) {
+					val[i] = ofLerp(valLastIdle[i],0.0, idleTransitionCounter);
+				}
+
+				scaleVectorfield = ofLerp(scaleVecLastIdle, 0.5, idleTransitionCounter);
+				animateVectorfield = ofLerp(animateLastIdle, 0.5, idleTransitionCounter);
+		}
+		if (restartPreset) {
+			usePreset = true;
+			restartPresetTimeLine();
+			interactionState = INBETWEEN;
+			restartPreset = false;
+		}
 	}	
+
+	
 
 	gradientFbo.begin();
 	shaderGradient.begin();
@@ -433,6 +546,10 @@ void ofApp::update(){
 	 xGraph = int(t*speed) % ((ofGetWidth()/2));
 	 yGraph[0] = mainVarGSRAveraged;
 	 yGraph[1] = mainVarGSR;
+	 
+	 if(useUDPRead){
+		 yGraph[2] = updateUdp();
+	}
 
 	 for (int i = 0;i<(int)trail.size();i++) {
 		 if (xGraph<prevXGraph) {
@@ -837,4 +954,144 @@ void ofApp::drawWithPost() {
 	FBO.end();
 
 	FBO.draw(0, 0);
+}
+
+void ofApp::loadPreset() {
+
+	ofXml XML;
+
+	string message;
+
+	vector<ofVec2f> dragPts;
+
+	if (XML.load("pts.xml")) {
+		message = "pts.xml loaded!";
+	}
+	else {
+
+		// Ok, we didn't get a file, but that's ok, we're going
+		// to go ahead and start making some stuff anyways! First, to
+		// make a correct XML document, we need a root element, so
+		// let's do that:
+
+		XML.addChild("DRAWING");
+
+		// now we set our current element so we're on the right
+		// element, so when we add new nodes, they're still inside
+		// the root element
+		XML.setTo("DRAWING");
+
+		message = "unable to load mySettings.xml check data/ folder";
+	}
+
+
+
+	// If we have STROKE nodes that we've already created, then we can go ahead and
+	// load them into the dragPts so they're drawn to the screen
+	if (XML.exists("STROKE"))
+	{
+		// This gets the first stroke (notice the [0], it's just like an array)
+		XML.setTo("STROKE[0]");
+
+
+		do {
+			// set our "current" PT to the first one
+			if (XML.getName() == "STROKE" && XML.setTo("PT[0]"))
+			{
+				// get each individual x,y for each point
+				do {
+					int x = XML.getValue<int>("X");
+					int y = XML.getValue<int>("Y");
+					ofVec2f v(x, y);
+
+					dragPts.push_back(v);
+				} while (XML.setToSibling()); // go the next PT
+
+											 // go back up
+				XML.setToParent();
+			}
+
+		} while (XML.setToSibling()); // go to the next STROKE
+	}
+
+	for (int i = 0; i < dragPts.size(); i++) {
+		ofVertex(dragPts[i].x, dragPts[i].y);
+		line.addVertex(dragPts[i].x, dragPts[i].y);
+	}
+
+	ofSetColor(255, 255, 0);
+	line = line.getSmoothed(2);
+	line.draw();
+
+	ofFill();
+	ofDrawCircle(line.getPointAtPercent(ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 1.0)), 15);
+
+}
+
+float ofApp::getPresetVal(float percent) {
+
+	return line.getPointAtPercent(percent).y;
+}
+
+void ofApp::restartPresetTimeLine()
+{
+	
+	//timerGSR = ofGetElapsedTimeMillis() - lastTimeMeasured;
+	lastTimeMeasured = ofGetElapsedTimeMillis();
+	timerGSR = ofGetElapsedTimeMillis() - lastTimeMeasured;
+}
+
+
+void ofApp::setupUdp() {
+	udpConnection.Create();
+	udpConnection.Bind(11999);
+	udpConnection.SetNonBlocking(true);
+}
+
+float ofApp::updateUdp()
+{
+	char udpMessage[100000];
+	udpConnection.Receive(udpMessage, 100000);
+	string message = udpMessage;
+	if (message != "") {
+		/*cout << message << endl;
+		stroke.clear();
+		float x, y;
+		vector<string> strPoints = ofSplitString(message, "[/p]");
+		for (unsigned int i = 0;i<strPoints.size();i++) {
+			vector<string> point = ofSplitString(strPoints[i], "|");
+			if (point.size() == 2) {
+				x = atof(point[0].c_str());
+				y = atof(point[1].c_str());
+				stroke.push_back(ofPoint(x, y));
+			}
+		}*/
+		UDPread = ofToFloat(message);
+
+
+
+
+	if (udpHistory.size() >= 500) {
+		udpHistory.push_back(UDPread);
+		udpHistory.erase(udpHistory.begin());
+	}
+	else {
+		udpHistory.push_back(UDPread);
+	}
+
+	double max = *max_element(udpHistory.begin(), udpHistory.end());
+	//cout << "Max value: " << max << endl;
+
+	double min = *min_element(udpHistory.begin(), udpHistory.end());
+	//cout << "Min value: " << max << endl;
+
+	UDPread = ofMap(udpRead,min,max,0,100);
+
+	}
+
+
+
+
+	return UDPread;
+
 }

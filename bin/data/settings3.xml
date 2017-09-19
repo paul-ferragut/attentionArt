@@ -1,7 +1,7 @@
 <group>
 	<use_Main_Var_GSR>1</use_Main_Var_GSR>
-	<main_Var_GSR>0</main_Var_GSR>
-	<main_Var_GSR_averaged>0</main_Var_GSR_averaged>
+	<main_Var_GSR>40</main_Var_GSR>
+	<main_Var_GSR_averaged>40</main_Var_GSR_averaged>
 	<beat>0</beat>
 	<averaging_main_var>57</averaging_main_var>
 	<stress_Threshold>13</stress_Threshold>
@@ -9,4 +9,9 @@
 	<stress_state_trigger>10</stress_state_trigger>
 	<relax_state_trigger>10</relax_state_trigger>
 <group/>
+<idle_state_trigger>378</idle_state_trigger>
+<use_preset>0</use_preset>
+	<weight_preset>13</weight_preset>
+<restart_preset>0</restart_preset>
+<use_UDP_read>0</use_UDP_read>
 </group>

@@ -6,6 +6,8 @@
 #include "ofxVoronoi.h"
 #include "ofxGui.h"
 #include "ofxAutoReloadedShader.h"
+#include "ofxMtlMapping2D.h"
+#include "ofxNetwork.h"
 
 #include "ofxFX.h"
 #include "ofxGrayscale.h"//    grayscale;
@@ -22,6 +24,8 @@
 #define	INBETWEEN 1
 #define RELAX 2
 #define IDLE 3
+
+#define DURATION 20000 //1000 millisecond 
 
 class ofApp : public ofBaseApp{
 
@@ -83,17 +87,25 @@ class ofApp : public ofBaseApp{
 		ofxToggle useMainVarGSR;
 		ofxIntSlider mainVarGSR;
 		ofxIntSlider mainVarGSRAveraged;
+		float prevMainVarGSRAveraged;
 		ofxToggle beat;
 		ofxIntSlider averaging;
 		ofxIntSlider stressThreshold;
 		ofxIntSlider relaxThreshold;
 		ofxIntSlider stressStateTrigger;
 		ofxIntSlider relaxStateTrigger;
+		ofxIntSlider idleStateTrigger;
+		ofxToggle usePreset;
+		ofxToggle restartPreset;
+		ofxIntSlider weightPreset;
+		ofxToggle useUDPRead;
 
 		int stressCounter;
 		int relaxCounter;
 		int stressPaletteNum;
 		int relaxPaletteNum;
+
+		int idleCounter;
 	
 		vector<ofPolyline> trail;
 		vector<float> yGraph;
@@ -157,4 +169,26 @@ class ofApp : public ofBaseApp{
 		bool fullScreen;
 		bool guiVisible;
 		bool screenGrab;
+
+		//stored for IDLE Transition
+		ofColor colLastIdle[5];
+		float posLastIdle[3];
+		float valLastIdle[3];
+		float animateLastIdle;
+		float scaleVecLastIdle;
+		float idleTransitionCounter;
+
+		ofPolyline line;
+		void loadPreset();
+		float getPresetVal(float percent);
+
+		float timerGSR;
+		float lastTimeMeasured;
+
+		void restartPresetTimeLine();
+
+		void setupUdp();
+		float updateUdp();
+		ofxUDPManager udpConnection;
+		float UDPread;
 };

@@ -6,10 +6,6 @@ void ofApp::setup(){
 	ofEnableAlphaBlending();
 	ofBackground(255);
 
-	_mapping = new ofxMtlMapping2D();
-	_mapping->init(ofGetWidth(), ofGetHeight(), "mapping/xml/shapes.xml", "mapping/controls/mapping.xml");
-
-
 
 	//GUI1
 	gui1.setup("Design", "settings1.xml",ofGetWidth()-210,0);
@@ -203,10 +199,6 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
 	ofSetWindowTitle("FPS:" + ofToString(ofGetFrameRate()));
-
-	if (useMapping) {
-		_mapping->update();
-	}
 
 	if (useMainVarGSR) {
 		 

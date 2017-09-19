@@ -2,9 +2,7 @@ ofxAutoReloadedShader
 ofxFX
 ofxGui
 ofxMSAInteractiveObject
-ofxMtlMapping2D
 ofxNetwork
-ofxUI
 ofxVectorField
 ofxVoronoi
 ofxXmlSettings

@@ -6,7 +6,7 @@
 #include "ofxVoronoi.h"
 #include "ofxGui.h"
 #include "ofxAutoReloadedShader.h"
-#include "ofxMtlMapping2D.h"
+
 #include "ofxNetwork.h"
 
 #include "ofxFX.h"
@@ -18,7 +18,6 @@
 
 #include "particleShader.h"
 
-#include "ofxMtlMapping2D.h"
 
 #define NUM_PALETTES 5
 
@@ -201,6 +200,5 @@ class ofApp : public ofBaseApp{
 		float UDPread;
 		vector<float>udpHistory;
 
-		private:
-			ofxMtlMapping2D* _mapping;
+	
 };

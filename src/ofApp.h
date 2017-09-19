@@ -18,6 +18,8 @@
 
 #include "particleShader.h"
 
+#include "ofxMtlMapping2D.h"
+
 #define NUM_PALETTES 5
 
 #define STRESS 0
@@ -26,6 +28,10 @@
 #define IDLE 3
 
 #define DURATION 20000 //1000 millisecond 
+
+
+#define UDPLOWRANGE 1000 //1000 millisecond 
+#define UDPHIGHRANGE 2000
 
 class ofApp : public ofBaseApp{
 
@@ -130,6 +136,8 @@ class ofApp : public ofBaseApp{
 		ofxToggle imagePaint;
 		ofxToggle paintDebug;
 
+		ofxToggle useMapping;
+
 		ofFbo FBO;
 		ofFbo FBO2;
 
@@ -191,4 +199,8 @@ class ofApp : public ofBaseApp{
 		float updateUdp();
 		ofxUDPManager udpConnection;
 		float UDPread;
+		vector<float>udpHistory;
+
+		private:
+			ofxMtlMapping2D* _mapping;
 };

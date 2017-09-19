@@ -6,6 +6,10 @@ void ofApp::setup(){
 	ofEnableAlphaBlending();
 	ofBackground(255);
 
+	_mapping = new ofxMtlMapping2D();
+	_mapping->init(ofGetWidth(), ofGetHeight(), "mapping/xml/shapes.xml", "mapping/controls/mapping.xml");
+
+
 
 	//GUI1
 	gui1.setup("Design", "settings1.xml",ofGetWidth()-210,0);
@@ -22,6 +26,8 @@ void ofApp::setup(){
 	gui1.add(paintDebug.setup("paintDebug", false));
 	gui1.add(opacityPaint.setup("opacity paint", 255, 0.0, 255));
 	gui1.add(opacityRefresh.setup("opacity refresh", 255, 0.0, 255));
+	gui1.add(useMapping.setup("use mapping", false));
+
 	gui1.add(debugDistort.setup("debug distort", false));
 	for (int i = 0;i < 3;i++) {
 		gui1.add(val[i].setup("val" + ofToString(i), 0.0, 0.0, 1.0));
@@ -148,7 +154,7 @@ void ofApp::setup(){
 	height = ofGetHeight();
 
 	grayscale.allocate(width, height);
-	inverse.allocate(width, height);
+	//inverse.allocate(width, height);
 	blur.allocate(width, height);
 	blur.setRadius(1);
 	blur.setPasses(1);
@@ -197,6 +203,10 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
 	ofSetWindowTitle("FPS:" + ofToString(ofGetFrameRate()));
+
+	if (useMapping) {
+		_mapping->update();
+	}
 
 	if (useMainVarGSR) {
 		 
@@ -454,7 +464,7 @@ void ofApp::update(){
 
 	timer++;
 
-	mask.setTexture(grayscale.getTexture(), 1);
+	mask.setTexture(grayscale.getTexture(), 1);//IMPORTANT
 	mask.update();
 	blur.setRadius(blurRadius);
 
@@ -463,9 +473,9 @@ void ofApp::update(){
 	if (imagePaint) {
 		grayscale.setTexture(FBO.getTextureReference());
 		grayscale.update();
-		inverse << grayscale;
-		inverse.update();
-		blur << inverse;
+		//inverse << grayscale;
+		//inverse.update();
+		blur << grayscale;
 		blur.update();
 		normals.update();
 
@@ -530,9 +540,10 @@ void ofApp::update(){
 		pingpong[timer % 2].end();
 	}
 
-	 mask.begin();
-	 ofClear(0,0);
-	 mask.end();
+
+	// mask.begin();
+	// ofClear(0,0);
+	// mask.end();
 
 
 
@@ -587,6 +598,9 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+
+
+
 	ofSetColor(255, 255, 255);
 
 	ofSetLineWidth(0);
@@ -655,15 +669,35 @@ void ofApp::draw(){
 	}
 	FBO.end();
 
-	ofEnableAlphaBlending();
 	
+
+	ofEnableAlphaBlending();
+	if (useMapping) {
+	//	
+	//	_mapping->bind();
+	}
+	ofClear(0,0);
+
 	drawWithPost();
 
 	ofSetColor(255, 255, 255, opacityPaint);
 	pingpong[timer % 2].draw(0, 0);//,ofGetWidth(),ofGetHeight());
 
+
+	if (useMapping) {
+	//	
+	//	_mapping->unbind();
+		//-------- mapping of the towers/shapes
+	//	ofSetColor(255, 255, 255, 255);
+	//
+	//	_mapping->draw();
+	//	//ofClearAlpha();
+	}
+
 	if(guiVisible)
 	drawDebug();
+	ofFill();
+	ofSetColor(255,255);
 
 }
 
@@ -1085,7 +1119,7 @@ float ofApp::updateUdp()
 	double min = *min_element(udpHistory.begin(), udpHistory.end());
 	//cout << "Min value: " << max << endl;
 
-	UDPread = ofMap(udpRead,min,max,0,100);
+	UDPread = ofMap(UDPread,min,max,0,100);
 
 	}
 

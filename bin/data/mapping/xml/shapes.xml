@@ -1,0 +1,19 @@
+<root>
+    <shape id="1">
+        <setting key="cols">1</setting>
+        <setting key="rows">1</setting>
+        <setting key="type">grid</setting>
+        <outputVertices>
+            <vertex x="0" y="0"></vertex>
+            <vertex x="1914" y="0"></vertex>
+            <vertex x="0" y="869"></vertex>
+            <vertex x="1914" y="869"></vertex>
+        </outputVertices>
+        <inputPolygon>
+            <vertex x="103" y="95"></vertex>
+            <vertex x="1930" y="95"></vertex>
+            <vertex x="1930" y="1074"></vertex>
+            <vertex x="103" y="1074"></vertex>
+        </inputPolygon>
+    </shape>
+</root>

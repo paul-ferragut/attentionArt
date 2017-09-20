@@ -6,9 +6,10 @@ void ofApp::setup(){
 	ofEnableAlphaBlending();
 	ofBackground(255);
 
-
+	//0 IS CALM
 	//GUI1
 	gui1.setup("Design", "settings1.xml",ofGetWidth()-210,0);
+	gui1.add(setSCREEN.setup("setSCREEN", false));
 	gui1.add(colorMapDebug.setup("colorMapDebug",true));
 	gui1.add(vectorFieldDebug.setup("vectorFieldDebug", true));
 	gui1.add(centerVoroDebug.setup("centerVoroDebug", true));
@@ -22,7 +23,7 @@ void ofApp::setup(){
 	gui1.add(paintDebug.setup("paintDebug", false));
 	gui1.add(opacityPaint.setup("opacity paint", 255, 0.0, 255));
 	gui1.add(opacityRefresh.setup("opacity refresh", 255, 0.0, 255));
-	gui1.add(useMapping.setup("use mapping", false));
+	gui1.add(useMasking.setup("use Masking n p s", false));
 
 	gui1.add(debugDistort.setup("debug distort", false));
 	for (int i = 0;i < 3;i++) {
@@ -100,10 +101,19 @@ void ofApp::setup(){
 	gui3.add(usePreset.setup("use preset", false));
 	gui3.add(restartPreset.setup("restart preset", false));
 	gui3.add(weightPreset.setup("weight preset", 25, 0, 49));
-
+	gui3.add(weightUDPRead.setup("weight UDP Read", 25, 0, 49));
 	gui3.loadFromFile("settings3.xml");
 
-	loadPreset();
+	lowReadings = false;
+
+	if (setSCREEN) {
+		ofSetWindowPosition(1920, 0);
+		loadPreset("scenario2.xml");
+	}
+	else {
+		loadPreset("scenario1.xml");
+	}
+	
 
 	relaxCounter = 0;
 	stressCounter = 0;
@@ -194,11 +204,67 @@ void ofApp::setup(){
 	fullScreen=false;
 	guiVisible=true;
 	screenGrab=false;
+
+	if (setSCREEN) {
+		ofSetWindowPosition(1920, 0);
+	}
+
+
+	string path = "/shapes/";
+	ofDirectory dir(path);
+	//only show png files
+	dir.allowExt("xml");
+	//populate the directory object
+	dir.listDir();
+
+
+	shapeCounter = dir.size();
+	cout << shapeCounter << endl;
+
+	for (int i = 0; i < dir.size(); i++) {
+		ofXml nXML;
+		vector < ofVec2f>newMaskPts;
+		nXML.load("shapes/shape" + ofToString(i) + ".xml");
+		if (nXML.exists("STROKE"))
+		{
+			// This gets the first stroke (notice the [0], it's just like an array)
+			nXML.setTo("STROKE[0]");
+
+
+			do {
+				// set our "current" PT to the first one
+				if (nXML.getName() == "STROKE" && nXML.setTo("PT[0]"))
+				{
+					// get each individual x,y for each point
+					do {
+						int x = nXML.getValue<int>("X");
+						int y = nXML.getValue<int>("Y");
+						ofVec2f v(x, y);
+						cout << v << endl;
+						newMaskPts.push_back(v);
+					} while (nXML.setToSibling()); // go the next PT
+
+												   // go back up
+					nXML.setToParent();
+				}
+
+			} while (nXML.setToSibling()); // go to the next STROKE
+		}
+		maskPts.push_back(newMaskPts);
+	}
+
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
 	ofSetWindowTitle("FPS:" + ofToString(ofGetFrameRate()));
+
+
+	//if (setSCREEN) {
+	//	ofSetWindowPosition(1920, 0);
+	//	loadPreset("scenario2.xml");
+		//setSCREEN = false;
+	//}
 
 	if (useMainVarGSR) {
 		 
@@ -242,7 +308,7 @@ void ofApp::update(){
 
 
 		//IDLE STATE
-		if (mainVarGSRAveraged < prevMainVarGSRAveraged + 1.0 && mainVarGSRAveraged > prevMainVarGSRAveraged - 1.0) {
+		if (mainVarGSRAveraged < prevMainVarGSRAveraged + 1.0 && mainVarGSRAveraged > prevMainVarGSRAveraged - 1.0 ) {
 			idleCounter++;
 			if (idleCounter > idleStateTrigger) {
 				idleCounter = idleStateTrigger;
@@ -253,6 +319,12 @@ void ofApp::update(){
 		else {
 			idleCounter = 0;
 		}
+
+		if (lowReadings) {
+			interactionState = IDLE;
+			lowReadings = false;
+		}
+
 		prevMainVarGSRAveraged = mainVarGSRAveraged;
 
 
@@ -293,7 +365,7 @@ void ofApp::update(){
 				scaleVecLastIdle = scaleVectorfield;
 
 				idleTransitionCounter = 0;
-				cout << "new IDLE State" << endl;
+				//cout << "new IDLE State" << endl;
 			}
 
 			if (interactionState == STRESS) {
@@ -312,6 +384,7 @@ void ofApp::update(){
 			if (prevInteractionState == IDLE) { //&& interactionState==INBETWEEN STRESS IDLE
 				//timer= ofGetElapsedTimeMillis();
 				lastTimeMeasured = ofGetElapsedTimeMillis();
+				restartPreset=true;
 			}
 		}
 		prevInteractionState = interactionState;
@@ -349,7 +422,10 @@ void ofApp::update(){
 				timerGSR = ofGetElapsedTimeMillis() - lastTimeMeasured;
 				float currentPresetVal = getPresetVal(ofMap(timerGSR, 0, DURATION, 0.0, 1.0));
 				float flippedWeightPreset = ofMap(weightPreset, 0, 49, 49, 0);
-				currentPresetVal = ofMap(currentPresetVal, 200, 300, flippedWeightPreset, 100- flippedWeightPreset);
+				//cout << "weightPreset" << flippedWeightPreset << endl;
+				//cout << "preset val" << currentPresetVal << endl;
+				currentPresetVal = ofMap(currentPresetVal, 30, 270, flippedWeightPreset, 100 - flippedWeightPreset,true);
+				//cout << "preset val modif" << currentPresetVal << endl;
 				//
 				if (usePreset) {
 					mainVarGSR = currentPresetVal;
@@ -394,6 +470,9 @@ void ofApp::update(){
 			interactionState = INBETWEEN;
 			restartPreset = false;
 		}
+
+		if(useUDPRead)
+		updateUdp();
 	}	
 
 	
@@ -548,10 +627,11 @@ void ofApp::update(){
 	 int speed = 100;
 	 xGraph = int(t*speed) % ((ofGetWidth()/2));
 	 yGraph[0] = mainVarGSRAveraged;
+
 	 yGraph[1] = mainVarGSR;
 	 
 	 if(useUDPRead){
-		 yGraph[2] = updateUdp();
+		 yGraph[2] = UDPread;
 	}
 
 	 for (int i = 0;i<(int)trail.size();i++) {
@@ -664,10 +744,7 @@ void ofApp::draw(){
 	
 
 	ofEnableAlphaBlending();
-	if (useMapping) {
-	//	
-	//	_mapping->bind();
-	}
+
 	ofClear(0,0);
 
 	drawWithPost();
@@ -676,14 +753,33 @@ void ofApp::draw(){
 	pingpong[timer % 2].draw(0, 0);//,ofGetWidth(),ofGetHeight());
 
 
-	if (useMapping) {
-	//	
-	//	_mapping->unbind();
-		//-------- mapping of the towers/shapes
-	//	ofSetColor(255, 255, 255, 255);
-	//
-	//	_mapping->draw();
-	//	//ofClearAlpha();
+	if (useMasking) {
+
+		//---------
+		//Lets draw the stroke as a continous line
+		ofSetColor(0, 0, 0);
+		ofFill();
+
+		for (int i = 0; i < maskPts.size(); i++) {
+			if (maskPts[i].size() > 0) {
+				ofBeginShape();
+				for (int j = 0; j < maskPts[i].size(); j++) {
+					ofVertex(maskPts[i][j].x, maskPts[i][j].y);
+					cout << maskPts[i][j].x << endl;
+					//line.addVertex(dragPts[i].x, dragPts[i].y);
+				}
+				ofEndShape();
+			}
+		}
+
+		if (lastMaskPts.size() > 0) {
+			ofBeginShape();
+			for (int j = 0; j < lastMaskPts.size(); j++) {
+				ofVertex(lastMaskPts[j].x, lastMaskPts[j].y);
+			}
+			ofEndShape();
+		}
+
 	}
 
 	if(guiVisible)
@@ -785,6 +881,8 @@ void ofApp::exit()
 	gui1.saveToFile("settings1.xml");
 	gui2.saveToFile("settings2.xml");
 	gui3.saveToFile("settings3.xml");
+
+	udpConnection.Close();
 }
 
 //--------------------------------------------------------------
@@ -828,10 +926,59 @@ void ofApp::keyPressed(int key){
 		guiVisible = !guiVisible;
 	}
 	if (key == 's') {
-		screenGrab = !screenGrab;
-		ofSaveScreen(ofGetTimestampString() + ".png");
+	//	screenGrab = !screenGrab;
+	//	ofSaveScreen(ofGetTimestampString() + ".png");
 	}
 
+
+
+	if (key == 'n')
+	{
+		//lets clear everything on mouse pressed so we save just one stroke. 
+		lastMaskPts.clear();
+		XML.clear();
+		XML.addChild("DRAWING");
+
+		// let's go back to the root (this is the same thing as reset() btw)
+		XML.setTo("//DRAWING");
+
+		// add a new stroke and then figure out how many strokes there are
+		XML.addChild("STROKE");
+		int strokes = XML.getNumChildren("STROKE");
+
+		// use a compound path: STROKE[2] for example to set the current element
+		// to the 3rd stroke tag
+		XML.setTo("STROKE[" + ofToString(strokes - 1) + "]");
+		xmlStructure = "<STROKE>\n";
+	}
+
+
+	if (key == 'p')
+	{
+
+		ofXml point;
+		point.addChild("PT");
+		point.setTo("PT");
+
+		point.addValue("X", mouseX);
+		point.addValue("Y", mouseY);
+
+		XML.addXml(point);
+		ofVec2f v(mouseX, mouseY);
+		lastMaskPts.push_back(v);
+	}
+
+	//no data gets saved unless you hit the s key
+	if (key == 's')
+	{
+		//update the colors to the XML structure when the mouse is released
+		XML.setTo("//DRAWING"); // set back to the root node
+		XML.save("shapes/shape" + ofToString(shapeCounter) + ".xml");
+
+
+
+		maskPts.push_back(lastMaskPts);
+	}
 
 
 }
@@ -982,7 +1129,7 @@ void ofApp::drawWithPost() {
 	FBO.draw(0, 0);
 }
 
-void ofApp::loadPreset() {
+void ofApp::loadPreset(string presetString) {
 
 	ofXml XML;
 
@@ -990,8 +1137,8 @@ void ofApp::loadPreset() {
 
 	vector<ofVec2f> dragPts;
 
-	if (XML.load("pts.xml")) {
-		message = "pts.xml loaded!";
+	if (XML.load(presetString)) {
+		message = presetString+" loaded!";
 	}
 	else {
 
@@ -1070,11 +1217,19 @@ void ofApp::restartPresetTimeLine()
 
 void ofApp::setupUdp() {
 	udpConnection.Create();
-	udpConnection.Bind(11999);
+
+	if (setSCREEN) {
+		udpConnection.Bind(61559);
+	}else{
+		udpConnection.Bind(61557);
+	}
+	
 	udpConnection.SetNonBlocking(true);
+	
+	cout << "SETUP UDP" << endl;
 }
 
-float ofApp::updateUdp()
+void ofApp::updateUdp()
 {
 	char udpMessage[100000];
 	udpConnection.Receive(udpMessage, 100000);
@@ -1092,7 +1247,9 @@ float ofApp::updateUdp()
 				stroke.push_back(ofPoint(x, y));
 			}
 		}*/
-		UDPread = ofToFloat(message);
+		
+		vector<string>splitString = ofSplitString(message,",",true,true);
+		UDPread = ofToFloat(splitString[setSCREEN]);
 
 
 
@@ -1110,14 +1267,32 @@ float ofApp::updateUdp()
 
 	double min = *min_element(udpHistory.begin(), udpHistory.end());
 	//cout << "Min value: " << max << endl;
-
-	UDPread = ofMap(UDPread,min,max,0,100);
+	
+	//CALCULATE THE RECENT AVERAGE
+	if (udpHistory.size() > 400) {
+		float udpAverage = 0;
+		for (int i = udpHistory.size()-400;i < udpHistory.size();i++) {
+			udpAverage += udpHistory[i];
+		}
+		udpAverage=udpAverage / 400;
+		if (udpAverage < 1000 && interactionState != IDLE ) {
+			lowReadings = true;
+		}
 
 	}
+	
+
+	UDPread = ofMap(UDPread,min,max,0+weightUDPRead,100-weightUDPRead);
+	mainVarGSR = (mainVarGSR + UDPread) / 2;
+
+	}
+	else {
+	mainVarGSR = (mainVarGSR + UDPread) / 2;
+	}
+
+	
 
 
-
-
-	return UDPread;
+	//return UDPread;
 
 }

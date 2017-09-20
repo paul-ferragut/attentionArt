@@ -2,21 +2,23 @@
 	<colorMapDebug>0</colorMapDebug>
 	<vectorFieldDebug>0</vectorFieldDebug>
 	<centerVoroDebug>0</centerVoroDebug>
-	<scale_vectorfield>3.16</scale_vectorfield>
-	<animate_vectorfield>2.9</animate_vectorfield>
+	<scale_vectorfield>0.4</scale_vectorfield>
+	<animate_vectorfield>0.5</animate_vectorfield>
 	<blurRadius>9</blurRadius>
-	<refreshPixel>1</refreshPixel>
+	<refreshPixel>0</refreshPixel>
 	<imagePaint>0</imagePaint>
 	<paintDebug>0</paintDebug>
 <group/>
 <opacity>10.2</opacity>
 <opacity_paint>255</opacity_paint>
-	<opacity_refresh>11.475</opacity_refresh>
+	<opacity_refresh>21.675</opacity_refresh>
 <relax_Voronoi>0</relax_Voronoi>
 <Maximum_Voronoi>446</Maximum_Voronoi>
-<val0>0.3</val0>
-	<val1>0.6</val1>
-	<val2>0.06</val2>
+<val0>0</val0>
+	<val1>0</val1>
+	<val2>0</val2>
 <debug_distort>0</debug_distort>
-<use_mapping>1</use_mapping>
+<use_mapping>0</use_mapping>
+<setSCREEN>0</setSCREEN>
+<use_Masking_n_p_s>0</use_Masking_n_p_s>
 </group>

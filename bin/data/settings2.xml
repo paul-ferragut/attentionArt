@@ -1,14 +1,14 @@
 <group>
-	<color_0>225, 224, 222, 255</color_0>
-	<color_1>69, 83, 77, 255</color_1>
-	<color_2>109, 86, 218, 255</color_2>
-	<color_3>233, 119, 234, 255</color_3>
-	<color_4>196, 186, 26, 255</color_4>
-	<pos_color0>0.592</pos_color0>
-	<pos_color1>0.604</pos_color1>
-	<pos_color2>0.643</pos_color2>
+	<color_0>243, 241, 230, 255</color_0>
+	<color_1>234, 178, 195, 255</color_1>
+	<color_2>209, 222, 240, 255</color_2>
+	<color_3>37, 46, 85, 255</color_3>
+	<color_4>24, 76, 184, 255</color_4>
+	<pos_color0>0.29</pos_color0>
+	<pos_color1>0.35</pos_color1>
+	<pos_color2>0.52</pos_color2>
 <group/>
-<gradient>1</gradient>
+<gradient>0</gradient>
 <use_Main_Var_GSR>0</use_Main_Var_GSR>
 	<main_Var_GSR>0</main_Var_GSR>
 	<main_Var_GSR_averaged>0</main_Var_GSR_averaged>

@@ -26,7 +26,7 @@
 #define RELAX 2
 #define IDLE 3
 
-#define DURATION 20000 //1000 millisecond 
+#define DURATION 190000 //1000 millisecond  40 000 
 
 
 #define UDPLOWRANGE 1000 //1000 millisecond 
@@ -67,6 +67,7 @@ class ofApp : public ofBaseApp{
 		vector <Particle> particles;
 		
 		ofxPanel gui1;
+		ofxToggle setSCREEN;
 		ofxFloatSlider opacityRefresh;
 		ofxFloatSlider opacityPaint;
 		ofxToggle colorMapDebug;
@@ -104,6 +105,7 @@ class ofApp : public ofBaseApp{
 		ofxToggle restartPreset;
 		ofxIntSlider weightPreset;
 		ofxToggle useUDPRead;
+		ofxIntSlider weightUDPRead;
 
 		int stressCounter;
 		int relaxCounter;
@@ -135,7 +137,7 @@ class ofApp : public ofBaseApp{
 		ofxToggle imagePaint;
 		ofxToggle paintDebug;
 
-		ofxToggle useMapping;
+		ofxToggle useMasking;
 
 		ofFbo FBO;
 		ofFbo FBO2;
@@ -186,19 +188,25 @@ class ofApp : public ofBaseApp{
 		float idleTransitionCounter;
 
 		ofPolyline line;
-		void loadPreset();
+		void loadPreset(string presetString);
 		float getPresetVal(float percent);
 
 		float timerGSR;
 		float lastTimeMeasured;
 
 		void restartPresetTimeLine();
-
+		bool lowReadings;
 		void setupUdp();
-		float updateUdp();
+		void updateUdp();
 		ofxUDPManager udpConnection;
 		float UDPread;
 		vector<float>udpHistory;
 
 	
+
+		ofXml XML;
+		string xmlStructure;
+		vector<vector<ofVec2f>> maskPts;
+		vector<ofVec2f>lastMaskPts;
+		int shapeCounter;
 };

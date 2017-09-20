@@ -5,11 +5,11 @@ void ofApp::setup(){
 
 	ofEnableAlphaBlending();
 	ofBackground(255);
-
+	refreshExpB = false;
 	//0 IS CALM
 	//GUI1
-	gui1.setup("Design", "settings1.xml",ofGetWidth()-210,0);
-	gui1.add(setSCREEN.setup("setSCREEN", false));
+	gui1.setup("Design", "settings1.xml",-110,0);
+	gui1.add(setScenario.setup("setScenario", false));
 	gui1.add(colorMapDebug.setup("colorMapDebug",true));
 	gui1.add(vectorFieldDebug.setup("vectorFieldDebug", true));
 	gui1.add(centerVoroDebug.setup("centerVoroDebug", true));
@@ -85,7 +85,7 @@ void ofApp::setup(){
 
 
 	//GUI2
-	gui3.setup("Interactivity", "settings3.xml", ofGetWidth() - 630, 0);
+	gui3.setup("Interactivity", "settings3.xml", ofGetWidth() - 110, 500);
 	gui3.add(useMainVarGSR.setup("use Main Var GSR", false));
 	gui3.add(mainVarGSR.setup("main Var GSR", 0.0, 0.0, 100.0));
 	gui3.add(mainVarGSRAveraged.setup("main Var GSR averaged", 0.0, 0.0, 100.0));
@@ -110,15 +110,19 @@ void ofApp::setup(){
 	gui3.loadFromFile("settings3.xml");
 
 	lowReadings = false;
+	scenarioPathString = "";
+	if (setScenario) {
+		//ofSetWindowPosition(1920, 0);
+		
+		loadPreset("scenario2stress.xml");
+		//scenarioPathString = ;
 
-	if (setSCREEN) {
-		ofSetWindowPosition(1920, 0);
-		loadPreset("scenario2.xml");
 	}
 	else {
-		loadPreset("scenario1.xml");
+		
+		loadPreset("scenario1calm.xml");
+		//scenarioPathString = "scenario1.xml";
 	}
-	
 
 	relaxCounter = 0;
 	stressCounter = 0;
@@ -210,9 +214,8 @@ void ofApp::setup(){
 	guiVisible=true;
 	screenGrab=false;
 
-	if (setSCREEN) {
-		ofSetWindowPosition(1920, 0);
-	}
+
+
 
 
 	string path = "/shapes/";
@@ -265,14 +268,29 @@ void ofApp::update(){
 	ofSetWindowTitle("FPS:" + ofToString(ofGetFrameRate()));
 
 
-	//if (setSCREEN) {
-	//	ofSetWindowPosition(1920, 0);
-	//	loadPreset("scenario2.xml");
-		//setSCREEN = false;
-	//}
+	if (setScenario) {
+		//ofSetWindowPosition(1920, 0);
+
+		loadPreset("scenario2stress.xml");
+		//scenarioPathString = ;
+
+	}
+	else {
+
+		loadPreset("scenario1calm.xml");
+		//scenarioPathString = "scenario1.xml";
+	}
 
 	if (useMainVarGSR) {
 		 
+		if (restartPreset) {
+			usePreset = true;
+			restartPresetTimeLine();
+			interactionState = INBETWEEN;
+			restartPreset = false;
+			idleCounter = 0;
+		}
+
 		bool inB = true;
 		//STATE MANAGEMENT
 		if (mainVarGSRAveraged <= stressThreshold) {
@@ -325,11 +343,12 @@ void ofApp::update(){
 			idleCounter = 0;
 		}
 
+		/*
 		if (lowReadings) {
 			interactionState = IDLE;
 			lowReadings = false;
-			//prevState == idle containt restart preset
-		}
+	}
+		*/
 
 		prevMainVarGSRAveraged = mainVarGSRAveraged;
 
@@ -390,7 +409,7 @@ void ofApp::update(){
 			if (prevInteractionState == IDLE) { //&& interactionState==INBETWEEN STRESS IDLE
 				//timer= ofGetElapsedTimeMillis();
 				lastTimeMeasured = ofGetElapsedTimeMillis();
-				restartPreset=true;
+				//restartPreset=true;
 			}
 		}
 		prevInteractionState = interactionState;
@@ -426,7 +445,7 @@ void ofApp::update(){
 			}
 			else {
 				timerGSR = ofGetElapsedTimeMillis() - lastTimeMeasured;
-				float currentPresetVal = getPresetVal(ofMap(timerGSR, 0, DURATION, 0.0, 1.0));
+				currentPresetVal = getPresetVal(ofMap(timerGSR, 0, DURATION, 0.0, 1.0));
 				float flippedWeightPreset = ofMap(weightPreset, 0, 49, 49, 0);
 				//cout << "weightPreset" << flippedWeightPreset << endl;
 				//cout << "preset val" << currentPresetVal << endl;
@@ -470,12 +489,7 @@ void ofApp::update(){
 				scaleVectorfield = ofLerp(scaleVecLastIdle, 0.5, idleTransitionCounter);
 				animateVectorfield = ofLerp(animateLastIdle, 0.5, idleTransitionCounter);
 		}
-		if (restartPreset) {
-			usePreset = true;
-			restartPresetTimeLine();
-			interactionState = INBETWEEN;
-			restartPreset = false;
-		}
+
 
 		if(useUDPRead)
 		updateUdp();
@@ -788,11 +802,28 @@ void ofApp::draw(){
 
 	}
 
+
+
+
 	if(guiVisible)
 	drawDebug();
 	ofFill();
 	ofSetColor(255,255);
 
+
+	if (refreshExpB) {
+		refreshExpCol-=10;
+		if (refreshExpCol <= 0) {
+			refreshExpCol = 0;
+			refreshExpB = false;
+		}
+		cout << refreshExpCol << endl;
+		ofEnableAlphaBlending();
+		ofSetColor(refreshExpCol, refreshExpCol, refreshExpCol, refreshExpCol);
+		ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
+		//ofColor(255, 255);	
+	}
+		
 }
 
 void ofApp::drawDebug() {
@@ -843,7 +874,11 @@ void ofApp::drawDebug() {
 		ofEnableSmoothing();
 		ofPushMatrix();
 		ofTranslate(ofGetWidth() / 2 -5, ofGetHeight() - ((105 * i) + 105));
-		ofDrawBitmapString("State: " + stateString[interactionState], 15, 15);
+		
+		if (i == 1) {
+		ofDrawBitmapString("State: " + stateString[interactionState]+" progress: "+ofToString(ofMap(timerGSR, 0, DURATION, 0.0, 1.0))+" file:"+scenarioPathString, 15, 15);
+		}
+
 		ofSetColor(255, 255, 255, 150);
 		ofDrawRectangle(0, 0, ofGetWidth() / 2, 100);
 		ofSetColor(50, 50, 255);
@@ -990,12 +1025,24 @@ void ofApp::keyPressed(int key){
 	if (key == 'r')
 	{
 		restartPreset = true;
+		refreshExpB = true;
+		refreshExpCol = 255;
 	}
 
 	if (key == 'i')
 	{
-		lowReadings = true;
+		//lowReadings = true;
 		//interactionState = IDLE;
+		//interactionState = IDLE;
+		usePreset = false;
+		idleCounter = idleStateTrigger+100;
+		interactionState = IDLE;
+	
+
+
+		refreshExpB = true;
+		refreshExpCol = 255;
+		//inB = false;
 	}
 
 }
@@ -1148,14 +1195,18 @@ void ofApp::drawWithPost() {
 
 void ofApp::loadPreset(string presetString) {
 
-	ofXml XML;
+	
+	if (presetString != scenarioPathString) {
+	cout << "trying SET SCENARIO" << endl;
+	ofXml XMLsc;
 
 	string message;
 
 	vector<ofVec2f> dragPts;
 
-	if (XML.load(presetString)) {
+	if (XMLsc.load(presetString)) {
 		message = presetString+" loaded!";
+		cout << message << endl;
 	}
 	else {
 
@@ -1164,44 +1215,45 @@ void ofApp::loadPreset(string presetString) {
 		// make a correct XML document, we need a root element, so
 		// let's do that:
 
-		XML.addChild("DRAWING");
+	//	XMLsc.addChild("DRAWING");
 
 		// now we set our current element so we're on the right
 		// element, so when we add new nodes, they're still inside
 		// the root element
-		XML.setTo("DRAWING");
+	//	XMLsc.setTo("DRAWING");
 
 		message = "unable to load mySettings.xml check data/ folder";
+		cout << message << endl;
 	}
 
 
 
 	// If we have STROKE nodes that we've already created, then we can go ahead and
 	// load them into the dragPts so they're drawn to the screen
-	if (XML.exists("STROKE"))
+	if (XMLsc.exists("STROKE"))
 	{
 		// This gets the first stroke (notice the [0], it's just like an array)
-		XML.setTo("STROKE[0]");
+		XMLsc.setTo("STROKE[0]");
 
 
 		do {
 			// set our "current" PT to the first one
-			if (XML.getName() == "STROKE" && XML.setTo("PT[0]"))
+			if (XMLsc.getName() == "STROKE" && XMLsc.setTo("PT[0]"))
 			{
 				// get each individual x,y for each point
 				do {
-					int x = XML.getValue<int>("X");
-					int y = XML.getValue<int>("Y");
+					int x = XMLsc.getValue<int>("X");
+					int y = XMLsc.getValue<int>("Y");
 					ofVec2f v(x, y);
-
+				//	cout << v << endl;
 					dragPts.push_back(v);
-				} while (XML.setToSibling()); // go the next PT
+				} while (XMLsc.setToSibling()); // go the next PT
 
 											 // go back up
-				XML.setToParent();
+				XMLsc.setToParent();
 			}
 
-		} while (XML.setToSibling()); // go to the next STROKE
+		} while (XMLsc.setToSibling()); // go to the next STROKE
 	}
 
 	for (int i = 0; i < dragPts.size(); i++) {
@@ -1213,8 +1265,10 @@ void ofApp::loadPreset(string presetString) {
 	line = line.getSmoothed(2);
 	line.draw();
 
-	ofFill();
-	ofDrawCircle(line.getPointAtPercent(ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 1.0)), 15);
+	//ofFill();
+	//ofDrawCircle(line.getPointAtPercent(ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 1.0)), 15);
+	scenarioPathString = presetString;
+	}
 
 }
 
@@ -1235,7 +1289,7 @@ void ofApp::restartPresetTimeLine()
 void ofApp::setupUdp() {
 	udpConnection.Create();
 
-	if (setSCREEN) {
+	if (setScenario) {
 		udpConnection.Bind(61559);
 	}else{
 		udpConnection.Bind(61557);
@@ -1265,9 +1319,8 @@ void ofApp::updateUdp()
 			}
 		}*/
 		
-		vector<string>splitString = ofSplitString(message,",",true,true);
-		UDPread = ofToFloat(splitString[setSCREEN]);
-
+		//vector<string>splitString = ofSplitString(message,",",true,true);
+		UDPread = ofToFloat(message);
 
 
 
@@ -1293,21 +1346,21 @@ void ofApp::updateUdp()
 		}
 		udpAverage=udpAverage / udpAveraging;
 		if (udpAverage < 1000 && interactionState != IDLE ) {
-			lowReadings = true;
+			//lowReadings = true;
 		}
 
 	}
 	
 
 	UDPread = ofMap(UDPread,min,max,0+weightUDPRead,100-weightUDPRead);
-	//mainVarGSR = (mainVarGSR + UDPread) / 2;
+mainVarGSR = ((mainVarGSR*3) + UDPread) /4; //AVERAGE WITH 3 QUARTER MORE WEIGHT ON SCENARIO
 
 	}
 	else {
 	
 	}
 
-	mainVarGSR = ((mainVarGSR*3) + UDPread) /4; //AVERAGE WITH 3 QUARTER MORE WEIGHT ON SCENARIO
+	
 
 
 	//return UDPread;

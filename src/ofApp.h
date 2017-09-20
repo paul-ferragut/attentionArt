@@ -26,7 +26,7 @@
 #define RELAX 2
 #define IDLE 3
 
-#define DURATION 190000 //1000 millisecond  40 000 
+#define DURATION 120000 //1000 millisecond  40 000 
 
 
 #define UDPLOWRANGE 1000 //1000 millisecond 
@@ -67,7 +67,8 @@ class ofApp : public ofBaseApp{
 		vector <Particle> particles;
 		
 		ofxPanel gui1;
-		ofxToggle setSCREEN;
+		ofxToggle setScenario;
+		string scenarioPathString;
 		ofxFloatSlider opacityRefresh;
 		ofxFloatSlider opacityPaint;
 		ofxToggle colorMapDebug;
@@ -120,7 +121,7 @@ class ofApp : public ofBaseApp{
 		float xGraph, prevXGraph;
 		float radius, initTime, t;
 		vector<float> mainVarHistory;
-
+		float currentPresetVal;
 
 		ofxGrayscale    grayscale;
 		ofxInverse      inverse;
@@ -210,4 +211,7 @@ class ofApp : public ofBaseApp{
 		vector<vector<ofVec2f>> maskPts;
 		vector<ofVec2f>lastMaskPts;
 		int shapeCounter;
+
+		int refreshExpCol;
+		bool refreshExpB;
 };

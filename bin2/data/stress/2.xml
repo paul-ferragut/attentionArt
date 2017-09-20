@@ -8,10 +8,5 @@
 	<pos_color1>0.71</pos_color1>
 	<pos_color2>0.745</pos_color2>
 <group/>
-<gradient>0</gradient>
-<use_Main_Var_GSR>0</use_Main_Var_GSR>
-	<main_Var_GSR>0</main_Var_GSR>
-	<main_Var_GSR_averaged>0</main_Var_GSR_averaged>
-	<beat>0</beat>
-	<averaging_main_var>10</averaging_main_var>
+<gradient>1</gradient>
 </group>

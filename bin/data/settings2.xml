@@ -1,12 +1,12 @@
 <group>
-	<color_0>215, 214, 212, 255</color_0>
-	<color_1>2, 6, 0, 255</color_1>
-	<color_2>28, 5, 224, 255</color_2>
-	<color_3>254, 49, 236, 255</color_3>
-	<color_4>252, 254, 1, 255</color_4>
-	<pos_color0>0.707259</pos_color0>
-	<pos_color1>0.707965</pos_color1>
-	<pos_color2>0.743867</pos_color2>
+	<color_0>222, 220, 203, 255</color_0>
+	<color_1>186, 194, 203, 255</color_1>
+	<color_2>102, 95, 117, 255</color_2>
+	<color_3>208, 207, 216, 255</color_3>
+	<color_4>60, 93, 158, 255</color_4>
+	<pos_color0>0.186765</pos_color0>
+	<pos_color1>0.378937</pos_color1>
+	<pos_color2>0.512037</pos_color2>
 <group/>
 <gradient>0</gradient>
 <use_Main_Var_GSR>0</use_Main_Var_GSR>

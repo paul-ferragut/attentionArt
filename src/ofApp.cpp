@@ -430,7 +430,7 @@ void ofApp::update(){
 
 			//all this in inbetween
 			if (interactionState == INBETWEEN) {
-				int changeSpeedCol = 50;
+				int changeSpeedCol = 300;
 				int counterTransitionWithin = ofGetFrameNum() % changeSpeedCol;
 				if (counterTransitionWithin == 0) {
 					//cout << "counterTransitionWithin" << endl;

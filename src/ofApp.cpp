@@ -37,6 +37,9 @@ void ofApp::setup(){
 	if (useUDPRead) {
 		setupUdp();
 	}
+	else {
+		UDPread = 0;
+	}
 
 	edgeStressScale=5;
 	edgeStressAnimate=4.5;
@@ -97,11 +100,13 @@ void ofApp::setup(){
 
 	gui3.add(relaxStateTrigger.setup("relax state trigger", 10, 1, 600));
 	gui3.add(stressStateTrigger.setup("stress state trigger", 10, 1, 600));
-	gui3.add(idleStateTrigger.setup("idle state trigger", 100, 1, 600));
+	gui3.add(idleStateTrigger.setup("idle state trigger", 100, 1, 1600));
 	gui3.add(usePreset.setup("use preset", false));
 	gui3.add(restartPreset.setup("restart preset", false));
 	gui3.add(weightPreset.setup("weight preset", 25, 0, 49));
 	gui3.add(weightUDPRead.setup("weight UDP Read", 25, 0, 49));
+	gui3.add(udpAveraging.setup("averaging UDP", 400, 0, 3000));
+
 	gui3.loadFromFile("settings3.xml");
 
 	lowReadings = false;
@@ -323,6 +328,7 @@ void ofApp::update(){
 		if (lowReadings) {
 			interactionState = IDLE;
 			lowReadings = false;
+			//prevState == idle containt restart preset
 		}
 
 		prevMainVarGSRAveraged = mainVarGSRAveraged;
@@ -981,6 +987,17 @@ void ofApp::keyPressed(int key){
 	}
 
 
+	if (key == 'r')
+	{
+		restartPreset = true;
+	}
+
+	if (key == 'i')
+	{
+		lowReadings = true;
+		//interactionState = IDLE;
+	}
+
 }
 
 //--------------------------------------------------------------
@@ -1269,12 +1286,12 @@ void ofApp::updateUdp()
 	//cout << "Min value: " << max << endl;
 	
 	//CALCULATE THE RECENT AVERAGE
-	if (udpHistory.size() > 400) {
+	if (udpHistory.size() > udpAveraging) {
 		float udpAverage = 0;
-		for (int i = udpHistory.size()-400;i < udpHistory.size();i++) {
+		for (int i = udpHistory.size()- udpAveraging;i < udpHistory.size();i++) {
 			udpAverage += udpHistory[i];
 		}
-		udpAverage=udpAverage / 400;
+		udpAverage=udpAverage / udpAveraging;
 		if (udpAverage < 1000 && interactionState != IDLE ) {
 			lowReadings = true;
 		}
@@ -1283,14 +1300,14 @@ void ofApp::updateUdp()
 	
 
 	UDPread = ofMap(UDPread,min,max,0+weightUDPRead,100-weightUDPRead);
-	mainVarGSR = (mainVarGSR + UDPread) / 2;
+	//mainVarGSR = (mainVarGSR + UDPread) / 2;
 
 	}
 	else {
-	mainVarGSR = (mainVarGSR + UDPread) / 2;
+	
 	}
 
-	
+	mainVarGSR = ((mainVarGSR*3) + UDPread) /4; //AVERAGE WITH 3 QUARTER MORE WEIGHT ON SCENARIO
 
 
 	//return UDPread;

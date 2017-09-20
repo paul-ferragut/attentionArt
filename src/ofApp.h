@@ -106,6 +106,7 @@ class ofApp : public ofBaseApp{
 		ofxIntSlider weightPreset;
 		ofxToggle useUDPRead;
 		ofxIntSlider weightUDPRead;
+		ofxIntSlider udpAveraging;
 
 		int stressCounter;
 		int relaxCounter;

@@ -26,7 +26,7 @@
 #define RELAX 2
 #define IDLE 3
 
-#define DURATION 120000 //1000 millisecond  40 000 
+#define DURATION 160000 //1000 millisecond  40 000 
 
 
 #define UDPLOWRANGE 1000 //1000 millisecond 
@@ -161,6 +161,17 @@ class ofApp : public ofBaseApp{
 
 		vector<vector<float>>colorPosRelax;
 		vector<vector<float>>colorPosStress;
+
+		ofColor colorRelaxNext[5];
+		ofColor colorRelaxPrev[5];
+		float colorPosRelaxNext[3];
+		float colorPosRelaxPrev[3];
+
+		ofColor colorStressNext[5];
+		ofColor colorStressPrev[5];
+		float colorPosStressNext[3];
+		float colorPosStressPrev[3];
+		//int nextPaletteNum;
 
 		float edgeStressScale;
 		float edgeStressAnimate;

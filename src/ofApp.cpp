@@ -72,15 +72,23 @@ void ofApp::setup(){
 
 	for (int i = 0;i < 5;i++) {
 		colorRelaxCurrent[i] = colorRelax[relaxPaletteNum][i];
+		colorRelaxPrev[i] = colorRelax[relaxPaletteNum][i];
+		colorRelaxNext[i] = colorRelax[ofRandom(NUM_PALETTES)][i];
 	}
 	for (int i = 0;i < 3;i++) {
 		positionColorRelaxCurrent[i] = colorPosRelax[relaxPaletteNum][i];
+		colorPosRelaxNext[i] = colorPosRelax[relaxPaletteNum][i];
+		colorPosRelaxPrev[i] = colorPosRelax[relaxPaletteNum][i];
 	}
 	for (int i = 0;i < 5;i++) {
 		colorStressCurrent[i] = colorStress[stressPaletteNum][i];
+		colorStressPrev[i] = colorStress[stressPaletteNum][i];
+		colorStressNext[i] = colorStress[ofRandom(NUM_PALETTES)][i];
 	}
 	for (int i = 0;i < 3;i++) {
 		positionColorStressCurrent[i] = colorPosStress[stressPaletteNum][i];
+		colorPosStressNext[i] = colorPosStress[stressPaletteNum][i];
+		colorPosStressPrev[i] = colorPosStress[stressPaletteNum][i];
 	}
 
 
@@ -403,6 +411,9 @@ void ofApp::update(){
 						positionColorRelaxCurrent[i] = colorPosRelax[relaxPaletteNum][i];
 					}
 			}
+
+
+
 			if (prevInteractionState == RELAX) { //&& interactionState==INBETWEEN STRESS IDLE
 				refreshPixel = true;
 			}
@@ -416,6 +427,50 @@ void ofApp::update(){
 
 		if (interactionState != IDLE) {
 		//CONSTANT UPDATING
+
+			//all this in inbetween
+			if (interactionState == INBETWEEN) {
+				int changeSpeedCol = 50;
+				int counterTransitionWithin = ofGetFrameNum() % changeSpeedCol;
+				if (counterTransitionWithin == 0) {
+					//cout << "counterTransitionWithin" << endl;
+					int nextPaletteNum1 = ofRandom(NUM_PALETTES);
+					int nextPaletteNum2 = ofRandom(NUM_PALETTES);
+					for (int i = 0;i < 5;i++) {
+						colorRelaxPrev[i] = colorRelaxCurrent[i];
+						colorStressPrev[i] = colorStressCurrent[i];
+
+						colorStressNext[i] = colorStress[nextPaletteNum1][i];
+						colorRelaxNext[i] = colorRelax[nextPaletteNum2][i];
+
+					}
+					for (int i = 0;i < 3;i++) {
+						colorPosRelaxPrev[i] = positionColorRelaxCurrent[i];
+						colorPosStressPrev[i] = positionColorStressCurrent[i];
+						colorPosStressNext[i] = colorPosStress[nextPaletteNum1][i];
+						colorPosRelaxNext[i] = colorPosRelax[nextPaletteNum2][i];
+					}
+				}
+				float mapT = ofMap(counterTransitionWithin, 0, changeSpeedCol, 0, 1.0);
+				for (int i = 0;i < 5;i++) {
+					float redN = ofLerp(colorRelaxPrev[i].r, colorRelaxNext[i].r, mapT);
+					float greenN = ofLerp(colorRelaxPrev[i].g, colorRelaxNext[i].g, mapT);
+					float blueN = ofLerp(colorRelaxPrev[i].b, colorRelaxNext[i].b, mapT);
+					colorRelaxCurrent[i] = ofColor(redN, greenN, blueN);
+				}
+				for (int i = 0;i < 5;i++) {
+					float redN = ofLerp(colorStressPrev[i].r, colorStressNext[i].r, mapT);
+					float greenN = ofLerp(colorStressPrev[i].g, colorStressNext[i].g, mapT);
+					float blueN = ofLerp(colorStressPrev[i].b, colorStressNext[i].b, mapT);
+					colorStressCurrent[i] = ofColor(redN, greenN, blueN);
+				}
+
+				for (int i = 0;i < 3;i++) {
+					positionColorRelaxCurrent[i] = ofLerp(colorPosRelaxPrev[i], colorPosRelaxNext[i], mapT);
+					positionColorStressCurrent[i] = ofLerp(colorPosStressPrev[i], colorPosStressNext[i], mapT);
+				}
+			}
+
 		//COLORS UPDATING
 			float normVal=ofMap(mainVarGSRAveraged,relaxThreshold ,stressThreshold , 0.0, 1.00,true);
 			for (int i = 0;i < 5;i++) {
